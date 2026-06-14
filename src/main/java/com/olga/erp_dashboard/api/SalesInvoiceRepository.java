@@ -8,10 +8,17 @@ import java.util.List;
 @Repository
 public class SalesInvoiceRepository {
 
+    private final BusinessCentralClient businessCentralClient;
+
     private final List<String> salesInvoices = new ArrayList<>();
 
+    public SalesInvoiceRepository(BusinessCentralClient businessCentralClient) {
+        this.businessCentralClient = businessCentralClient;
+    }
+
     public List<String> getSalesInvoices() {
-        return salesInvoices;
+        //return salesInvoices;
+        return List.of(businessCentralClient.getSalesInvoices());
     }
 
     public void saveSalesInvoice(String title) {
