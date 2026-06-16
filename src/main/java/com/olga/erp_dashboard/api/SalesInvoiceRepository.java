@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olga.erp_dashboard.api.dto.SalesInvoiceDto;
+
 @Repository
 public class SalesInvoiceRepository {
 
@@ -16,9 +18,8 @@ public class SalesInvoiceRepository {
         this.businessCentralClient = businessCentralClient;
     }
 
-    public List<String> getSalesInvoices() {
-        //return salesInvoices;
-        return List.of(businessCentralClient.getSalesInvoices());
+    public List<SalesInvoiceDto> getSalesInvoices() throws Exception {
+        return businessCentralClient.getSalesInvoices();
     }
 
     public void saveSalesInvoice(String title) {

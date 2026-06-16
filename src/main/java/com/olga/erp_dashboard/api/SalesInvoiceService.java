@@ -1,9 +1,9 @@
 package com.olga.erp_dashboard.api;
 
+import com.olga.erp_dashboard.api.dto.SalesInvoiceDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,16 +16,7 @@ public class SalesInvoiceService {
         this.salesInvoiceRepository = salesInvoiceRepository;
     }
 
-
-    public List<String> getSalesInvoices() {
-        return this.salesInvoiceRepository.getSalesInvoices();
+    public List<SalesInvoiceDto> getSalesInvoices() throws Exception {
+        return salesInvoiceRepository.getSalesInvoices();
     }
-
-    public void createSalesInvoice(String title) {
-        if (title.isBlank()) {
-            throw new IllegalArgumentException("Title may not be empty");
-        }
-        this.salesInvoiceRepository.saveSalesInvoice(title);
-    }
-
 }
