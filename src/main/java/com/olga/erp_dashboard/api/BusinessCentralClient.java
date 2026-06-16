@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.ObjectMapper;
 import com.olga.erp_dashboard.api.dto.SalesInvoiceDto;
 import com.olga.erp_dashboard.api.dto.SalesInvoiceResponse;
+import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceDto;
+import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceResponse;
 
 import java.util.List;
 
@@ -59,5 +61,37 @@ public class BusinessCentralClient {
                 objectMapper.readValue(response.getBody(), SalesInvoiceResponse.class);
 
         return salesInvoiceResponse.value;
+    }
+
+    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() {
+        try {
+            String url = "https://api.businesscentral.dynamics.com/v2.0/"
+                    + tenant
+                    + "/"
+                    + environment
+                    + "/api/microsoft/automate/v1.0/companies("
+                    + companyId
+                    + ")/postedSalesInvoices";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            PostedSalesInvoiceResponse postedSalesInvoiceResponse =
+                    objectMapper.readValue(response.getBody(), PostedSalesInvoiceResponse.class);
+
+            return postedSalesInvoiceResponse.value;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch posted sales invoices from Business Central", e);
+        }
     }
 }

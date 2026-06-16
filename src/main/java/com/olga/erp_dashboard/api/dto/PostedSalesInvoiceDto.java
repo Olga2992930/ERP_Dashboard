@@ -1,6 +1,6 @@
 package com.olga.erp_dashboard.api.dto;
 
-public class SalesInvoiceDto {
+public class PostedSalesInvoiceDto {
 
     public String id;
     public String number;
@@ -14,12 +14,9 @@ public class SalesInvoiceDto {
 
     public String currencyCode;
 
-    public double remainingAmount;
     public double totalAmountExcludingTax;
-    public double totalTaxAmount;
     public double totalAmountIncludingTax;
 
-    public String status;
     public String salesperson;
 
     public String email;
