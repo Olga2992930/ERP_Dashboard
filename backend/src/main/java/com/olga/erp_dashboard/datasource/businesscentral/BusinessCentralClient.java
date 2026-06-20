@@ -1,4 +1,4 @@
-package com.olga.erp_dashboard.api;
+package com.olga.erp_dashboard.datasource.businesscentral;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,10 +11,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import tools.jackson.databind.ObjectMapper;
-import com.olga.erp_dashboard.api.dto.SalesInvoiceDto;
-import com.olga.erp_dashboard.api.dto.SalesInvoiceResponse;
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceDto;
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceResponse;
+import com.olga.erp_dashboard.salesinvoice.SalesInvoiceDto;
+import com.olga.erp_dashboard.salesinvoice.SalesInvoiceResponse;
+import com.olga.erp_dashboard.postedsalesinvoice.PostedSalesInvoiceDto;
+import com.olga.erp_dashboard.postedsalesinvoice.PostedSalesInvoiceResponse;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class BusinessCentralClient {
     @Value("${business-central.company-id}")
     private String companyId;
 
-    List<SalesInvoiceDto> getSalesInvoices() throws Exception {
+    public List<SalesInvoiceDto> getSalesInvoices() throws Exception {
         String url = "https://api.businesscentral.dynamics.com/v2.0/"
                 + tenant
                 + "/"

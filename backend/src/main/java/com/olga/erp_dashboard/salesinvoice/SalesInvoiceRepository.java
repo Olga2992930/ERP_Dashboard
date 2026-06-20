@@ -1,11 +1,10 @@
-package com.olga.erp_dashboard.api;
+package com.olga.erp_dashboard.salesinvoice;
 
+import com.olga.erp_dashboard.datasource.businesscentral.BusinessCentralClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.olga.erp_dashboard.api.dto.SalesInvoiceDto;
 
 @Repository
 public class SalesInvoiceRepository {

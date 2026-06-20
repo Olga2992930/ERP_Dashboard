@@ -1,11 +1,8 @@
-package com.olga.erp_dashboard.api;
+package com.olga.erp_dashboard.postedsalesinvoice;
 
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceKpiDto;
 
 @Service
 public class PostedSalesInvoiceService {

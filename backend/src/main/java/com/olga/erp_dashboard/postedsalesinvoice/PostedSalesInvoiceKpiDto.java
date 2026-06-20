@@ -1,4 +1,4 @@
-package com.olga.erp_dashboard.api.dto;
+package com.olga.erp_dashboard.postedsalesinvoice;
 
 public class PostedSalesInvoiceKpiDto {
 

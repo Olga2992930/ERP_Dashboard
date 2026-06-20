@@ -1,9 +1,7 @@
-package com.olga.erp_dashboard.api;
+package com.olga.erp_dashboard.postedsalesinvoice;
 
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceKpiDto;
 
 import java.util.List;
 

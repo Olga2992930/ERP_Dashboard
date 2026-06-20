@@ -1,6 +1,6 @@
-package com.olga.erp_dashboard.api;
+package com.olga.erp_dashboard.postedsalesinvoice;
 
-import com.olga.erp_dashboard.api.dto.PostedSalesInvoiceDto;
+import com.olga.erp_dashboard.datasource.businesscentral.BusinessCentralClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
