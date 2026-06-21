@@ -1,6 +1,5 @@
 package com.olga.erp_dashboard.salesinvoice;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,7 +9,6 @@ public class SalesInvoiceService {
 
     private final SalesInvoiceRepository salesInvoiceRepository;
 
-    @Autowired
     public SalesInvoiceService(SalesInvoiceRepository salesInvoiceRepository) {
         this.salesInvoiceRepository = salesInvoiceRepository;
     }
