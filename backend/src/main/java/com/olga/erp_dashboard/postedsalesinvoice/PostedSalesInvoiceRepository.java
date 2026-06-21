@@ -14,7 +14,7 @@ public class PostedSalesInvoiceRepository {
         this.businessCentralClient = businessCentralClient;
     }
 
-    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() {
+    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() throws Exception {
         return businessCentralClient.getPostedSalesInvoices();
     }
 }

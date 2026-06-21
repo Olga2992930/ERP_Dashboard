@@ -15,12 +15,12 @@ public class PostedSalesInvoiceController {
     }
 
     @GetMapping("/api/posted-sales-invoices")
-    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() {
+    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() throws Exception {
         return postedSalesInvoiceService.getPostedSalesInvoices();
     }
 
     @GetMapping("/api/kpi/posted-sales-invoices")
-    public PostedSalesInvoiceKpiDto getPostedSalesInvoiceKpi() {
+    public PostedSalesInvoiceKpiDto getPostedSalesInvoiceKpi() throws Exception {
         return postedSalesInvoiceService.getPostedSalesInvoiceKpi();
     }
 }

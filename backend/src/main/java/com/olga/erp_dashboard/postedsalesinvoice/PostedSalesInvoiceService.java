@@ -13,11 +13,11 @@ public class PostedSalesInvoiceService {
         this.postedSalesInvoiceRepository = postedSalesInvoiceRepository;
     }
 
-    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() {
+    public List<PostedSalesInvoiceDto> getPostedSalesInvoices() throws Exception {
         return postedSalesInvoiceRepository.getPostedSalesInvoices();
     }
 
-    public PostedSalesInvoiceKpiDto getPostedSalesInvoiceKpi() {
+    public PostedSalesInvoiceKpiDto getPostedSalesInvoiceKpi() throws Exception {
         List<PostedSalesInvoiceDto> invoices =
                 postedSalesInvoiceRepository.getPostedSalesInvoices();
 
