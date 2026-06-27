@@ -16,6 +16,14 @@ public class UserController {
         );
     }
 
+    @GetMapping("/api/auth/status")
+    public AuthStatusDto getAuthStatus(@AuthenticationPrincipal OAuth2User user) {
+        return new AuthStatusDto(user != null);
+    }
+
     public record CurrentUserDto(String name, String email) {
+    }
+
+    public record AuthStatusDto(boolean authenticated) {
     }
 }

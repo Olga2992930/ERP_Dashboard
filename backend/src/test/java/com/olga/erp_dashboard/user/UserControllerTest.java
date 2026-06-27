@@ -3,9 +3,9 @@ package com.olga.erp_dashboard.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -48,5 +48,51 @@ class UserControllerTest {
         } finally {
             SecurityContextHolder.clearContext();
         }
+    }
+
+    @Test
+    void shouldReturnAuthenticatedStatus() throws Exception {
+        // Given
+        OAuth2User user = new DefaultOAuth2User(
+                List.of(),
+                Map.of(
+                        "name", "User Name",
+                        "email", "user@example.com"
+                ),
+                "email"
+        );
+
+        UserController userController = new UserController();
+
+        MockMvc mockMvc = standaloneSetup(userController)
+                .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
+                .build();
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken(user, null));
+
+        try {
+            // When / Then
+            mockMvc.perform(get("/api/auth/status"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.authenticated").value(true));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    @Test
+    void shouldReturnUnauthenticatedStatus() throws Exception {
+        // Given
+        UserController userController = new UserController();
+
+        MockMvc mockMvc = standaloneSetup(userController)
+                .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
+                .build();
+
+        // When / Then
+        mockMvc.perform(get("/api/auth/status"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.authenticated").value(false));
     }
 }
