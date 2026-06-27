@@ -95,4 +95,30 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authenticated").value(false));
     }
+
+    @Test
+    void shouldReturnLoginUrl() throws Exception {
+        // Given
+        UserController userController = new UserController();
+
+        MockMvc mockMvc = standaloneSetup(userController).build();
+
+        // When / Then
+        mockMvc.perform(get("/api/auth/login-url"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.loginUrl").value("/oauth2/authorization/google"));
+    }
+
+    @Test
+    void shouldReturnLogoutUrl() throws Exception {
+        // Given
+        UserController userController = new UserController();
+
+        MockMvc mockMvc = standaloneSetup(userController).build();
+
+        // When / Then
+        mockMvc.perform(get("/api/auth/logout-url"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.logoutUrl").value("/logout"));
+    }
 }

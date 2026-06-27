@@ -12,7 +12,11 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/status").permitAll()
+                        .requestMatchers(
+                                "/api/auth/status",
+                                "/api/auth/login-url",
+                                "/api/auth/logout-url"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> {

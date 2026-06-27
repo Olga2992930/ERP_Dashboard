@@ -21,9 +21,25 @@ public class UserController {
         return new AuthStatusDto(user != null);
     }
 
+    @GetMapping("/api/auth/login-url")
+    public LoginUrlDto getLoginUrl() {
+        return new LoginUrlDto("/oauth2/authorization/google");
+    }
+
+    @GetMapping("/api/auth/logout-url")
+    public LogoutUrlDto getLogoutUrl() {
+        return new LogoutUrlDto("/logout");
+    }
+
     public record CurrentUserDto(String name, String email) {
     }
 
     public record AuthStatusDto(boolean authenticated) {
+    }
+
+    public record LoginUrlDto(String loginUrl) {
+    }
+
+    public record LogoutUrlDto(String logoutUrl) {
     }
 }
