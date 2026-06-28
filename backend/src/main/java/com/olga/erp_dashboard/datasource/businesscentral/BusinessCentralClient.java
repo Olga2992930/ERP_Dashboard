@@ -17,6 +17,8 @@ import com.olga.erp_dashboard.salesinvoice.SalesInvoiceDto;
 import com.olga.erp_dashboard.salesinvoice.SalesInvoiceResponse;
 import com.olga.erp_dashboard.postedsalesinvoice.PostedSalesInvoiceDto;
 import com.olga.erp_dashboard.postedsalesinvoice.PostedSalesInvoiceResponse;
+import com.olga.erp_dashboard.customer.CustomerDto;
+import com.olga.erp_dashboard.customer.CustomerResponse;
 
 import java.util.List;
 
@@ -125,5 +127,32 @@ public class BusinessCentralClient {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch posted sales invoices from Business Central", e);
         }
+    }
+
+    public List<CustomerDto> getCustomers() throws Exception {
+        String url = "https://api.businesscentral.dynamics.com/v2.0/"
+                + tenant
+                + "/"
+                + environment
+                + "/api/v2.0/companies("
+                + companyId
+                + ")/customers";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(getAccessToken());
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        CustomerResponse customerResponse =
+                objectMapper.readValue(response.getBody(), CustomerResponse.class);
+
+        return customerResponse.value;
     }
 }
