@@ -36,4 +36,60 @@ class CustomerServiceTest {
         assertEquals("10000", customers.get(0).number);
         assertEquals("Test Customer", customers.get(0).displayName);
     }
+
+    @Test
+    void shouldCalculateCustomerKpi() throws Exception {
+        // Given
+        CustomerRepository customerRepository =
+                mock(CustomerRepository.class);
+
+        CustomerDto customer1 = new CustomerDto();
+        customer1.balanceDue = 1500.0;
+        customer1.creditLimit = 5000.0;
+
+        CustomerDto customer2 = new CustomerDto();
+        customer2.balanceDue = 0.0;
+        customer2.creditLimit = 3000.0;
+
+        CustomerDto customer3 = new CustomerDto();
+        customer3.balanceDue = 2500.0;
+        customer3.creditLimit = 7000.0;
+
+        when(customerRepository.getCustomers())
+                .thenReturn(List.of(customer1, customer2, customer3));
+
+        CustomerService customerService =
+                new CustomerService(customerRepository);
+
+        // When
+        CustomerKpiDto kpi = customerService.getCustomerKpi();
+
+        // Then
+        assertEquals(3, kpi.customersCount);
+        assertEquals(2, kpi.customersWithBalanceDueCount);
+        assertEquals(4000.0, kpi.totalBalanceDue);
+        assertEquals(15000.0, kpi.totalCreditLimit);
+    }
+
+    @Test
+    void shouldReturnZeroKpiWhenThereAreNoCustomers() throws Exception {
+        // Given
+        CustomerRepository customerRepository =
+                mock(CustomerRepository.class);
+
+        when(customerRepository.getCustomers())
+                .thenReturn(List.of());
+
+        CustomerService customerService =
+                new CustomerService(customerRepository);
+
+        // When
+        CustomerKpiDto kpi = customerService.getCustomerKpi();
+
+        // Then
+        assertEquals(0, kpi.customersCount);
+        assertEquals(0, kpi.customersWithBalanceDueCount);
+        assertEquals(0.0, kpi.totalBalanceDue);
+        assertEquals(0.0, kpi.totalCreditLimit);
+    }
 }

@@ -18,4 +18,9 @@ public class CustomerController {
     public List<CustomerDto> getCustomers() throws Exception {
         return customerService.getCustomers();
     }
+
+    @GetMapping("/api/kpi/customers")
+    public CustomerKpiDto getCustomerKpi() throws Exception {
+        return customerService.getCustomerKpi();
+    }
 }
