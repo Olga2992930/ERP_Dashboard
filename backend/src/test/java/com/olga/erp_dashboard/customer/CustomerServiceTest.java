@@ -70,6 +70,35 @@ class CustomerServiceTest {
     }
 
     @Test
+    void shouldReturnOnlyCustomersWithBalanceDue() throws Exception {
+        // Given
+        CustomerRepository customerRepository =
+                mock(CustomerRepository.class);
+
+        CustomerDto customerWithDebt = new CustomerDto();
+        customerWithDebt.id = "customer-with-debt";
+        customerWithDebt.balanceDue = 1500.0;
+
+        CustomerDto customerWithoutDebt = new CustomerDto();
+        customerWithoutDebt.id = "customer-without-debt";
+        customerWithoutDebt.balanceDue = 0.0;
+
+        when(customerRepository.getCustomers())
+                .thenReturn(List.of(customerWithDebt, customerWithoutDebt));
+
+        CustomerService customerService =
+                new CustomerService(customerRepository);
+
+        // When
+        List<CustomerDto> customers = customerService.getCustomersWithBalanceDue();
+
+        // Then
+        assertEquals(1, customers.size());
+        assertEquals("customer-with-debt", customers.get(0).id);
+        assertEquals(1500.0, customers.get(0).balanceDue);
+    }
+
+    @Test
     void shouldReturnZeroKpiWhenThereAreNoCustomers() throws Exception {
         // Given
         CustomerRepository customerRepository =

@@ -81,4 +81,35 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.averageBalanceDue").value(1333.3333333333333))
                 .andExpect(jsonPath("$.largestBalanceDue").value(2500.0));
     }
+
+    @Test
+    void shouldReturnCustomersWithBalanceDue() throws Exception {
+        // Given
+        CustomerService customerService =
+                mock(CustomerService.class);
+
+        CustomerDto customer = new CustomerDto();
+        customer.id = "customer-with-debt";
+        customer.number = "20000";
+        customer.displayName = "Trey Research";
+        customer.balanceDue = 23700.0;
+        customer.currencyCode = "SEK";
+
+        when(customerService.getCustomersWithBalanceDue())
+                .thenReturn(List.of(customer));
+
+        CustomerController customerController =
+                new CustomerController(customerService);
+
+        MockMvc mockMvc = standaloneSetup(customerController).build();
+
+        // When / Then
+        mockMvc.perform(get("/api/customers/with-balance-due"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("customer-with-debt"))
+                .andExpect(jsonPath("$[0].number").value("20000"))
+                .andExpect(jsonPath("$[0].displayName").value("Trey Research"))
+                .andExpect(jsonPath("$[0].balanceDue").value(23700.0))
+                .andExpect(jsonPath("$[0].currencyCode").value("SEK"));
+    }
 }

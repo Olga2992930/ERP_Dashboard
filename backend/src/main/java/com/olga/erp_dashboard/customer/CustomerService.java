@@ -17,6 +17,12 @@ public class CustomerService {
         return customerRepository.getCustomers();
     }
 
+    public List<CustomerDto> getCustomersWithBalanceDue() throws Exception {
+        return customerRepository.getCustomers().stream()
+                .filter(customer -> customer.balanceDue > 0)
+                .toList();
+    }
+
     public CustomerKpiDto getCustomerKpi() throws Exception {
         List<CustomerDto> customers = customerRepository.getCustomers();
 

@@ -19,6 +19,11 @@ public class CustomerController {
         return customerService.getCustomers();
     }
 
+    @GetMapping("/api/customers/with-balance-due")
+    public List<CustomerDto> getCustomersWithBalanceDue() throws Exception {
+        return customerService.getCustomersWithBalanceDue();
+    }
+
     @GetMapping("/api/kpi/customers")
     public CustomerKpiDto getCustomerKpi() throws Exception {
         return customerService.getCustomerKpi();
