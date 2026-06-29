@@ -61,7 +61,8 @@ class CustomerControllerTest {
         kpi.customersCount = 3;
         kpi.customersWithBalanceDueCount = 2;
         kpi.totalBalanceDue = 4000.0;
-        kpi.totalCreditLimit = 15000.0;
+        kpi.averageBalanceDue = 1333.3333333333333;
+        kpi.largestBalanceDue = 2500.0;
 
         when(customerService.getCustomerKpi())
                 .thenReturn(kpi);
@@ -77,6 +78,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.customersCount").value(3))
                 .andExpect(jsonPath("$.customersWithBalanceDueCount").value(2))
                 .andExpect(jsonPath("$.totalBalanceDue").value(4000.0))
-                .andExpect(jsonPath("$.totalCreditLimit").value(15000.0));
+                .andExpect(jsonPath("$.averageBalanceDue").value(1333.3333333333333))
+                .andExpect(jsonPath("$.largestBalanceDue").value(2500.0));
     }
 }

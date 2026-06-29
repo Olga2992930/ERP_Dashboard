@@ -32,9 +32,15 @@ public class CustomerService {
                 .mapToDouble(customer -> customer.balanceDue)
                 .sum();
 
-        kpi.totalCreditLimit = customers.stream()
-                .mapToDouble(customer -> customer.creditLimit)
-                .sum();
+        kpi.averageBalanceDue = customers.stream()
+                .mapToDouble(customer -> customer.balanceDue)
+                .average()
+                .orElse(0.0);
+
+        kpi.largestBalanceDue = customers.stream()
+                .mapToDouble(customer -> customer.balanceDue)
+                .max()
+                .orElse(0.0);
 
         return kpi;
     }

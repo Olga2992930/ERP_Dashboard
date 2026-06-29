@@ -45,15 +45,12 @@ class CustomerServiceTest {
 
         CustomerDto customer1 = new CustomerDto();
         customer1.balanceDue = 1500.0;
-        customer1.creditLimit = 5000.0;
 
         CustomerDto customer2 = new CustomerDto();
         customer2.balanceDue = 0.0;
-        customer2.creditLimit = 3000.0;
 
         CustomerDto customer3 = new CustomerDto();
         customer3.balanceDue = 2500.0;
-        customer3.creditLimit = 7000.0;
 
         when(customerRepository.getCustomers())
                 .thenReturn(List.of(customer1, customer2, customer3));
@@ -68,7 +65,8 @@ class CustomerServiceTest {
         assertEquals(3, kpi.customersCount);
         assertEquals(2, kpi.customersWithBalanceDueCount);
         assertEquals(4000.0, kpi.totalBalanceDue);
-        assertEquals(15000.0, kpi.totalCreditLimit);
+        assertEquals(1333.3333333333333, kpi.averageBalanceDue);
+        assertEquals(2500.0, kpi.largestBalanceDue);
     }
 
     @Test
@@ -90,6 +88,7 @@ class CustomerServiceTest {
         assertEquals(0, kpi.customersCount);
         assertEquals(0, kpi.customersWithBalanceDueCount);
         assertEquals(0.0, kpi.totalBalanceDue);
-        assertEquals(0.0, kpi.totalCreditLimit);
+        assertEquals(0.0, kpi.averageBalanceDue);
+        assertEquals(0.0, kpi.largestBalanceDue);
     }
 }

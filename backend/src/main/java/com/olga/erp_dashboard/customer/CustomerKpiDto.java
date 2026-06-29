@@ -6,5 +6,6 @@ public class CustomerKpiDto {
     public int customersWithBalanceDueCount;
 
     public double totalBalanceDue;
-    public double totalCreditLimit;
+    public double averageBalanceDue;
+    public double largestBalanceDue;
 }
