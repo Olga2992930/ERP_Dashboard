@@ -15,6 +15,7 @@ function App() {
   const [customerKpi, setCustomerKpi] = useState(null)
   const [salesInvoiceKpi, setSalesInvoiceKpi] = useState(null)
   const [postedSalesInvoiceKpi, setPostedSalesInvoiceKpi] = useState(null)
+  const [customersWithBalanceDue, setCustomersWithBalanceDue] = useState(null)
 
   useEffect(() => {
     const fetchFromBackend = (path) =>
@@ -37,12 +38,22 @@ function App() {
           fetchFromBackend('/api/kpi/customers'),
           fetchFromBackend('/api/kpi/sales-invoices'),
           fetchFromBackend('/api/kpi/posted-sales-invoices'),
-        ]).then(([user, customerKpiData, salesInvoiceKpiData, postedSalesInvoiceKpiData]) => {
-          setCurrentUser(user)
-          setCustomerKpi(customerKpiData)
-          setSalesInvoiceKpi(salesInvoiceKpiData)
-          setPostedSalesInvoiceKpi(postedSalesInvoiceKpiData)
-        })
+          fetchFromBackend('/api/customers/with-balance-due'),
+        ]).then(
+          ([
+            user,
+            customerKpiData,
+            salesInvoiceKpiData,
+            postedSalesInvoiceKpiData,
+            customersWithBalanceDueData,
+          ]) => {
+            setCurrentUser(user)
+            setCustomerKpi(customerKpiData)
+            setSalesInvoiceKpi(salesInvoiceKpiData)
+            setPostedSalesInvoiceKpi(postedSalesInvoiceKpiData)
+            setCustomersWithBalanceDue(customersWithBalanceDueData)
+          },
+        )
       }
     })
   }, [])
@@ -142,6 +153,40 @@ function App() {
                 {amountFormatter.format(postedSalesInvoiceKpi.totalAmountIncludingTax)}
               </p>
             </>
+          )}
+        </section>
+      )}
+
+      {authenticated === true && (
+        <section>
+          <h2>Customers with balance due</h2>
+          {customersWithBalanceDue === null ? (
+            <p>Loading customers...</p>
+          ) : customersWithBalanceDue.length === 0 ? (
+            <p>No customers have a balance due.</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Customer</th>
+                  <th>Email</th>
+                  <th>Balance due</th>
+                  <th>Currency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customersWithBalanceDue.map((customer) => (
+                  <tr key={customer.id}>
+                    <td>{customer.number}</td>
+                    <td>{customer.displayName}</td>
+                    <td>{customer.email || '-'}</td>
+                    <td>{amountFormatter.format(customer.balanceDue)}</td>
+                    <td>{customer.currencyCode || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </section>
       )}
