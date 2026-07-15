@@ -7,6 +7,27 @@ const amountFormatter = new Intl.NumberFormat('sv-SE', {
   maximumFractionDigits: 2,
 })
 
+async function fetchFromBackend(path) {
+  const response = await fetch(`${backendUrl}${path}`, { credentials: 'include' })
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`)
+  }
+
+  return response.json()
+}
+
+function LoadError({ message, onRetry }) {
+  return (
+    <div role="alert">
+      <p>{message}</p>
+      <button type="button" onClick={onRetry}>
+        Retry
+      </button>
+    </div>
+  )
+}
+
 function App() {
   const [authenticated, setAuthenticated] = useState(null)
   const [loginUrl, setLoginUrl] = useState(null)
@@ -16,46 +37,100 @@ function App() {
   const [salesInvoiceKpi, setSalesInvoiceKpi] = useState(null)
   const [postedSalesInvoiceKpi, setPostedSalesInvoiceKpi] = useState(null)
   const [customersWithBalanceDue, setCustomersWithBalanceDue] = useState(null)
+  const [authError, setAuthError] = useState(null)
+  const [loginUrlError, setLoginUrlError] = useState(null)
+  const [logoutUrlError, setLogoutUrlError] = useState(null)
+  const [currentUserError, setCurrentUserError] = useState(null)
+  const [customerKpiError, setCustomerKpiError] = useState(null)
+  const [salesInvoiceKpiError, setSalesInvoiceKpiError] = useState(null)
+  const [postedSalesInvoiceKpiError, setPostedSalesInvoiceKpiError] = useState(null)
+  const [customersWithBalanceDueError, setCustomersWithBalanceDueError] = useState(null)
+
+  const loadResource = (path, setData, setError, errorMessage) => {
+    setError(null)
+
+    return fetchFromBackend(path)
+      .then(setData)
+      .catch(() => setError(errorMessage))
+  }
+
+  const loadCurrentUser = () =>
+    loadResource('/api/me', setCurrentUser, setCurrentUserError, 'Could not load current user.')
+
+  const loadCustomerKpi = () =>
+    loadResource(
+      '/api/kpi/customers',
+      setCustomerKpi,
+      setCustomerKpiError,
+      'Could not load customer KPI.',
+    )
+
+  const loadSalesInvoiceKpi = () =>
+    loadResource(
+      '/api/kpi/sales-invoices',
+      setSalesInvoiceKpi,
+      setSalesInvoiceKpiError,
+      'Could not load sales invoice KPI.',
+    )
+
+  const loadPostedSalesInvoiceKpi = () =>
+    loadResource(
+      '/api/kpi/posted-sales-invoices',
+      setPostedSalesInvoiceKpi,
+      setPostedSalesInvoiceKpiError,
+      'Could not load posted sales invoice KPI.',
+    )
+
+  const loadCustomersWithBalanceDue = () =>
+    loadResource(
+      '/api/customers/with-balance-due',
+      setCustomersWithBalanceDue,
+      setCustomersWithBalanceDueError,
+      'Could not load customers with balance due.',
+    )
+
+  const loadProtectedData = () => {
+    loadCurrentUser()
+    loadCustomerKpi()
+    loadSalesInvoiceKpi()
+    loadPostedSalesInvoiceKpi()
+    loadCustomersWithBalanceDue()
+  }
+
+  const loadAuthStatus = () => {
+    setAuthError(null)
+
+    return fetchFromBackend('/api/auth/status')
+      .then((authStatus) => {
+        setAuthenticated(authStatus.authenticated)
+
+        if (authStatus.authenticated) {
+          loadProtectedData()
+        }
+      })
+      .catch(() => setAuthError('Could not check authentication status.'))
+  }
+
+  const loadLoginUrl = () =>
+    loadResource(
+      '/api/auth/login-url',
+      (login) => setLoginUrl(login.loginUrl),
+      setLoginUrlError,
+      'Could not load the login link.',
+    )
+
+  const loadLogoutUrl = () =>
+    loadResource(
+      '/api/auth/logout-url',
+      (logout) => setLogoutUrl(logout.logoutUrl),
+      setLogoutUrlError,
+      'Could not load the logout link.',
+    )
 
   useEffect(() => {
-    const fetchFromBackend = (path) =>
-      fetch(`${backendUrl}${path}`, { credentials: 'include' }).then((response) =>
-        response.json(),
-      )
-
-    Promise.all([
-      fetchFromBackend('/api/auth/status'),
-      fetchFromBackend('/api/auth/login-url'),
-      fetchFromBackend('/api/auth/logout-url'),
-    ]).then(([authStatus, login, logout]) => {
-      setAuthenticated(authStatus.authenticated)
-      setLoginUrl(login.loginUrl)
-      setLogoutUrl(logout.logoutUrl)
-
-      if (authStatus.authenticated) {
-        Promise.all([
-          fetchFromBackend('/api/me'),
-          fetchFromBackend('/api/kpi/customers'),
-          fetchFromBackend('/api/kpi/sales-invoices'),
-          fetchFromBackend('/api/kpi/posted-sales-invoices'),
-          fetchFromBackend('/api/customers/with-balance-due'),
-        ]).then(
-          ([
-            user,
-            customerKpiData,
-            salesInvoiceKpiData,
-            postedSalesInvoiceKpiData,
-            customersWithBalanceDueData,
-          ]) => {
-            setCurrentUser(user)
-            setCustomerKpi(customerKpiData)
-            setSalesInvoiceKpi(salesInvoiceKpiData)
-            setPostedSalesInvoiceKpi(postedSalesInvoiceKpiData)
-            setCustomersWithBalanceDue(customersWithBalanceDueData)
-          },
-        )
-      }
-    })
+    loadAuthStatus()
+    loadLoginUrl()
+    loadLogoutUrl()
   }, [])
 
   const navigateToBackend = (path) => {
@@ -69,19 +144,37 @@ function App() {
 
       <p>
         Auth status:{' '}
-        {authenticated === null ? 'Checking...' : authenticated ? 'Logged in' : 'Logged out'}
+        {authError
+          ? 'Unavailable'
+          : authenticated === null
+            ? 'Checking...'
+            : authenticated
+              ? 'Logged in'
+              : 'Logged out'}
       </p>
 
-      {authenticated === false && loginUrl && (
-        <button type="button" onClick={() => navigateToBackend(loginUrl)}>
-          Log in with Google
-        </button>
+      {authError && <LoadError message={authError} onRetry={loadAuthStatus} />}
+
+      {authenticated === false && (
+        <>
+          {loginUrlError ? (
+            <LoadError message={loginUrlError} onRetry={loadLoginUrl} />
+          ) : loginUrl === null ? (
+            <p>Loading login link...</p>
+          ) : (
+            <button type="button" onClick={() => navigateToBackend(loginUrl)}>
+              Log in with Google
+            </button>
+          )}
+        </>
       )}
 
       {authenticated === true && (
         <section>
           <h2>Current user</h2>
-          {currentUser === null ? (
+          {currentUserError ? (
+            <LoadError message={currentUserError} onRetry={loadCurrentUser} />
+          ) : currentUser === null ? (
             <p>Loading user...</p>
           ) : (
             <>
@@ -95,7 +188,9 @@ function App() {
       {authenticated === true && (
         <section>
           <h2>Customer KPI</h2>
-          {customerKpi === null ? (
+          {customerKpiError ? (
+            <LoadError message={customerKpiError} onRetry={loadCustomerKpi} />
+          ) : customerKpi === null ? (
             <p>Loading customer KPI...</p>
           ) : (
             <>
@@ -112,7 +207,9 @@ function App() {
       {authenticated === true && (
         <section>
           <h2>Sales invoice KPI</h2>
-          {salesInvoiceKpi === null ? (
+          {salesInvoiceKpiError ? (
+            <LoadError message={salesInvoiceKpiError} onRetry={loadSalesInvoiceKpi} />
+          ) : salesInvoiceKpi === null ? (
             <p>Loading sales invoice KPI...</p>
           ) : (
             <>
@@ -138,7 +235,12 @@ function App() {
       {authenticated === true && (
         <section>
           <h2>Posted sales invoice KPI</h2>
-          {postedSalesInvoiceKpi === null ? (
+          {postedSalesInvoiceKpiError ? (
+            <LoadError
+              message={postedSalesInvoiceKpiError}
+              onRetry={loadPostedSalesInvoiceKpi}
+            />
+          ) : postedSalesInvoiceKpi === null ? (
             <p>Loading posted sales invoice KPI...</p>
           ) : (
             <>
@@ -160,7 +262,12 @@ function App() {
       {authenticated === true && (
         <section>
           <h2>Customers with balance due</h2>
-          {customersWithBalanceDue === null ? (
+          {customersWithBalanceDueError ? (
+            <LoadError
+              message={customersWithBalanceDueError}
+              onRetry={loadCustomersWithBalanceDue}
+            />
+          ) : customersWithBalanceDue === null ? (
             <p>Loading customers...</p>
           ) : customersWithBalanceDue.length === 0 ? (
             <p>No customers have a balance due.</p>
@@ -191,10 +298,18 @@ function App() {
         </section>
       )}
 
-      {authenticated === true && logoutUrl && (
-        <button type="button" onClick={() => navigateToBackend(logoutUrl)}>
-          Log out
-        </button>
+      {authenticated === true && (
+        <>
+          {logoutUrlError ? (
+            <LoadError message={logoutUrlError} onRetry={loadLogoutUrl} />
+          ) : logoutUrl === null ? (
+            <p>Loading logout link...</p>
+          ) : (
+            <button type="button" onClick={() => navigateToBackend(logoutUrl)}>
+              Log out
+            </button>
+          )}
+        </>
       )}
     </main>
   )
