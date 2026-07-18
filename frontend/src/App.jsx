@@ -1,32 +1,14 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-
-const backendUrl = 'http://localhost:8080'
-const amountFormatter = new Intl.NumberFormat('sv-SE', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
-
-async function fetchFromBackend(path) {
-  const response = await fetch(`${backendUrl}${path}`, { credentials: 'include' })
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`)
-  }
-
-  return response.json()
-}
-
-function LoadError({ message, onRetry }) {
-  return (
-    <div role="alert">
-      <p>{message}</p>
-      <button type="button" onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  )
-}
+import { fetchFromBackend, getBackendUrl } from './api.js'
+import CurrentUserSection from './components/CurrentUserSection.jsx'
+import CustomerDebtTable from './components/CustomerDebtTable.jsx'
+import {
+  CustomerKpiSection,
+  PostedSalesInvoiceKpiSection,
+  SalesInvoiceKpiSection,
+} from './components/KpiSections.jsx'
+import LoadError from './components/LoadError.jsx'
 
 function App() {
   const [authenticated, setAuthenticated] = useState(null)
@@ -134,7 +116,7 @@ function App() {
   }, [])
 
   const navigateToBackend = (path) => {
-    window.location.href = new URL(path, backendUrl).toString()
+    window.location.href = getBackendUrl(path)
   }
 
   return (
@@ -170,132 +152,43 @@ function App() {
       )}
 
       {authenticated === true && (
-        <section>
-          <h2>Current user</h2>
-          {currentUserError ? (
-            <LoadError message={currentUserError} onRetry={loadCurrentUser} />
-          ) : currentUser === null ? (
-            <p>Loading user...</p>
-          ) : (
-            <>
-              <p>Name: {currentUser.name}</p>
-              <p>Email: {currentUser.email}</p>
-            </>
-          )}
-        </section>
+        <CurrentUserSection
+          currentUser={currentUser}
+          error={currentUserError}
+          onRetry={loadCurrentUser}
+        />
       )}
 
       {authenticated === true && (
-        <section>
-          <h2>Customer KPI</h2>
-          {customerKpiError ? (
-            <LoadError message={customerKpiError} onRetry={loadCustomerKpi} />
-          ) : customerKpi === null ? (
-            <p>Loading customer KPI...</p>
-          ) : (
-            <>
-              <p>Customers: {customerKpi.customersCount}</p>
-              <p>Customers with balance due: {customerKpi.customersWithBalanceDueCount}</p>
-              <p>Total balance due: {amountFormatter.format(customerKpi.totalBalanceDue)}</p>
-              <p>Average balance due: {amountFormatter.format(customerKpi.averageBalanceDue)}</p>
-              <p>Largest balance due: {amountFormatter.format(customerKpi.largestBalanceDue)}</p>
-            </>
-          )}
-        </section>
+        <CustomerKpiSection
+          customerKpi={customerKpi}
+          error={customerKpiError}
+          onRetry={loadCustomerKpi}
+        />
       )}
 
       {authenticated === true && (
-        <section>
-          <h2>Sales invoice KPI</h2>
-          {salesInvoiceKpiError ? (
-            <LoadError message={salesInvoiceKpiError} onRetry={loadSalesInvoiceKpi} />
-          ) : salesInvoiceKpi === null ? (
-            <p>Loading sales invoice KPI...</p>
-          ) : (
-            <>
-              <p>Invoices: {salesInvoiceKpi.invoicesCount}</p>
-              <p>Open invoices: {salesInvoiceKpi.openInvoicesCount}</p>
-              <p>
-                Remaining amount: {amountFormatter.format(salesInvoiceKpi.totalRemainingAmount)}
-              </p>
-              <p>
-                Total excluding tax:{' '}
-                {amountFormatter.format(salesInvoiceKpi.totalAmountExcludingTax)}
-              </p>
-              <p>Total tax: {amountFormatter.format(salesInvoiceKpi.totalTaxAmount)}</p>
-              <p>
-                Total including tax:{' '}
-                {amountFormatter.format(salesInvoiceKpi.totalAmountIncludingTax)}
-              </p>
-            </>
-          )}
-        </section>
+        <SalesInvoiceKpiSection
+          salesInvoiceKpi={salesInvoiceKpi}
+          error={salesInvoiceKpiError}
+          onRetry={loadSalesInvoiceKpi}
+        />
       )}
 
       {authenticated === true && (
-        <section>
-          <h2>Posted sales invoice KPI</h2>
-          {postedSalesInvoiceKpiError ? (
-            <LoadError
-              message={postedSalesInvoiceKpiError}
-              onRetry={loadPostedSalesInvoiceKpi}
-            />
-          ) : postedSalesInvoiceKpi === null ? (
-            <p>Loading posted sales invoice KPI...</p>
-          ) : (
-            <>
-              <p>Posted invoices: {postedSalesInvoiceKpi.postedInvoicesCount}</p>
-              <p>
-                Total excluding tax:{' '}
-                {amountFormatter.format(postedSalesInvoiceKpi.totalAmountExcludingTax)}
-              </p>
-              <p>Total tax: {amountFormatter.format(postedSalesInvoiceKpi.totalTaxAmount)}</p>
-              <p>
-                Total including tax:{' '}
-                {amountFormatter.format(postedSalesInvoiceKpi.totalAmountIncludingTax)}
-              </p>
-            </>
-          )}
-        </section>
+        <PostedSalesInvoiceKpiSection
+          postedSalesInvoiceKpi={postedSalesInvoiceKpi}
+          error={postedSalesInvoiceKpiError}
+          onRetry={loadPostedSalesInvoiceKpi}
+        />
       )}
 
       {authenticated === true && (
-        <section>
-          <h2>Customers with balance due</h2>
-          {customersWithBalanceDueError ? (
-            <LoadError
-              message={customersWithBalanceDueError}
-              onRetry={loadCustomersWithBalanceDue}
-            />
-          ) : customersWithBalanceDue === null ? (
-            <p>Loading customers...</p>
-          ) : customersWithBalanceDue.length === 0 ? (
-            <p>No customers have a balance due.</p>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Customer</th>
-                  <th>Email</th>
-                  <th>Balance due</th>
-                  <th>Currency</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customersWithBalanceDue.map((customer) => (
-                  <tr key={customer.id}>
-                    <td>{customer.number}</td>
-                    <td>{customer.displayName}</td>
-                    <td>{customer.email || '-'}</td>
-                    <td>{amountFormatter.format(customer.balanceDue)}</td>
-                    <td>{customer.currencyCode || '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
+        <CustomerDebtTable
+          customers={customersWithBalanceDue}
+          error={customersWithBalanceDueError}
+          onRetry={loadCustomersWithBalanceDue}
+        />
       )}
 
       {authenticated === true && (
