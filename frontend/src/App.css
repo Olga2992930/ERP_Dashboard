@@ -1,0 +1,36 @@
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+section {
+  margin-top: 32px;
+}
+
+.kpi-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.kpi-card {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.kpi-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.kpi-value {
+  display: block;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}
