@@ -1,8 +1,8 @@
-function LoadError({ message, onRetry }) {
+function LoadError({ message, onRetry, compact = false }) {
   return (
-    <div role="alert">
+    <div className={`error-state${compact ? ' error-state--compact' : ''}`} role="alert">
       <p>{message}</p>
-      <button type="button" onClick={onRetry}>
+      <button className="button button--retry" type="button" onClick={onRetry}>
         Retry
       </button>
     </div>
