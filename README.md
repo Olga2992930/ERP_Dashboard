@@ -1,10 +1,18 @@
 # ERP Dashboard
 
-ERP Dashboard is a backend learning project built with Java and Spring Boot.
+ERP Dashboard is a full-stack learning project built with Java, Spring Boot, React, and Vite.
 
-The application connects to Microsoft Dynamics 365 Business Central, reads invoice data, and exposes REST API endpoints for invoices and KPI calculations.
+The application connects to Microsoft Dynamics 365 Business Central, reads customer and invoice data, and presents KPIs and receivables in a responsive dashboard. It also exposes REST API endpoints for the underlying data and KPI calculations.
 
 Later, the project may grow toward AI-assisted ERP features, such as “Chat with your ERP”.
+
+## Business Central environment
+
+This project integrates with **Microsoft Dynamics 365 Business Central Online** using the **Business Central REST API v2.0**.
+
+It uses the **CRONUS SE demo company** and its sample data for development, testing, and educational purposes.
+
+No real company or customer data is used.
 
 ## Why this project exists
 
@@ -12,7 +20,7 @@ ERP systems contain a lot of important business data, but it is often not easy t
 
 From my previous work as an accounting assistant, I know that even simple questions can require manual reports, exports, or checking data in several places.
 
-This project explores how ERP data can be made easier to use through clean API endpoints, KPI calculations, and later AI-assisted features like “Chat with your ERP”.
+This project explores how ERP data can be made easier to use through a visual dashboard, clean API endpoints, KPI calculations, and later AI-assisted features like “Chat with your ERP”.
 
 The ERP system remains the source of truth. This application is an extra layer for analytics, search, and future AI functionality.
 
@@ -21,53 +29,39 @@ The ERP system remains the source of truth. This application is an extra layer f
 * Integration with Microsoft Dynamics 365 Business Central API
 * Automatic OAuth 2.0 client credentials authentication for Business Central
 * Google login with OpenID Connect
-* Sales invoice API endpoints
-* Posted sales invoice API endpoints
-* KPI endpoints for invoice analytics
+* Responsive React dashboard with navigation and user profile menu
+* KPI overview for customers, sales invoices, and posted sales invoices
+* Customer receivables table showing outstanding balances
+* REST API endpoints for customers and invoices
+* Retry handling for frontend API errors
 * Unit and controller tests with JUnit, Mockito, and MockMvc
 
 ## Tech stack
+
+### Backend
 
 * Java 21
 * Spring Boot 4
 * Maven Wrapper
 * Spring Security
 * Google OpenID Connect
-* Microsoft Dynamics 365 Business Central API
+* Microsoft Dynamics 365 Business Central REST API v2.0
 * JUnit
 * Mockito
 * MockMvc
 * Bruno
 
+### Frontend
+
+* React 19
+* Vite 8
+* JavaScript
+* CSS
+* Oxlint
+
 ## Quick start
 
-The backend is located in the `backend` folder.
-
-### 1. Go to the backend folder
-
-```powershell
-cd backend
-```
-
-### 2. Run tests
-
-```powershell
-.\mvnw.cmd test
-```
-
-### 3. Run the application
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-The application starts on:
-
-```text
-http://localhost:8080
-```
-
-## Local configuration
+### 1. Configure the backend
 
 Local secrets are stored in:
 
@@ -91,9 +85,60 @@ spring.security.oauth2.client.registration.google.client-secret=...
 spring.security.oauth2.client.registration.google.scope=openid,profile,email
 ```
 
-## Basic usage examples
+### 2. Run the backend
 
-Open the application in a browser and log in with Google.
+```powershell
+cd backend
+.\mvnw.cmd spring-boot:run
+```
+
+The backend starts at `http://localhost:8080`.
+
+### 3. Run the frontend
+
+In a separate terminal:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open the local URL shown by Vite and log in with Google.
+
+### 4. Run the tests
+
+```powershell
+cd backend
+.\mvnw.cmd test
+```
+
+To check the frontend:
+
+```powershell
+cd frontend
+npm run lint
+npm run build
+```
+
+## API endpoints
+
+Authentication and current user:
+
+```text
+GET /api/auth/status
+GET /api/auth/login-url
+GET /api/auth/logout-url
+GET /api/me
+```
+
+Customers:
+
+```text
+GET /api/customers
+GET /api/customers/with-balance-due
+GET /api/kpi/customers
+```
 
 Sales invoices:
 
@@ -109,15 +154,15 @@ GET /api/posted-sales-invoices
 GET /api/kpi/posted-sales-invoices
 ```
 
-The API can also be tested with Bruno or another API client.
+The endpoints can also be tested with Bruno or another API client.
 
 ## Ideas to explore next
 
 Possible next steps for this learning project:
 
-* Add a local JSON datasource for offline development
-* Add more Business Central entities, such as customers or customer ledger entries
-* Improve KPI logic for customer debt and aging
-* Explore a database datasource for structured analytics
+* Add a local JSON data source for offline development
+* Add more Business Central entities, such as customer ledger entries
+* Add aging analysis for customer receivables
+* Explore a database data source for structured analytics
 * Try a small RAG prototype for ERP-related documents
 * Explore how a “Chat with your ERP” feature could work
