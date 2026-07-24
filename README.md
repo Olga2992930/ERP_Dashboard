@@ -6,6 +6,16 @@ The application connects to Microsoft Dynamics 365 Business Central, reads custo
 
 Later, the project may grow toward AI-assisted ERP features, such as “Chat with your ERP”.
 
+## Dashboard preview
+
+### Overview
+
+![ERP Dashboard overview](docs/images/dashboard-overview.png)
+
+### Customer receivables
+
+![Customer receivables in ERP Dashboard](docs/images/customer-receivables.png)
+
 ## Business Central environment
 
 This project integrates with **Microsoft Dynamics 365 Business Central Online** using the **Business Central REST API v2.0**.
