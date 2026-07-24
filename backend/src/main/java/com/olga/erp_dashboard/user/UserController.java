@@ -12,7 +12,8 @@ public class UserController {
     public CurrentUserDto getCurrentUser(@AuthenticationPrincipal OAuth2User user) {
         return new CurrentUserDto(
                 user.getAttribute("name"),
-                user.getAttribute("email")
+                user.getAttribute("email"),
+                user.getAttribute("picture")
         );
     }
 
@@ -31,7 +32,7 @@ public class UserController {
         return new LogoutUrlDto("/logout");
     }
 
-    public record CurrentUserDto(String name, String email) {
+    public record CurrentUserDto(String name, String email, String picture) {
     }
 
     public record AuthStatusDto(boolean authenticated) {

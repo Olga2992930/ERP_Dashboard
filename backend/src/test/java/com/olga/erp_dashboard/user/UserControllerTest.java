@@ -25,7 +25,8 @@ class UserControllerTest {
                 List.of(),
                 Map.of(
                         "name", "User Name",
-                        "email", "user@example.com"
+                        "email", "user@example.com",
+                        "picture", "https://example.com/user-picture.jpg"
                 ),
                 "email"
         );
@@ -44,7 +45,8 @@ class UserControllerTest {
             mockMvc.perform(get("/api/me"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value("User Name"))
-                    .andExpect(jsonPath("$.email").value("user@example.com"));
+                    .andExpect(jsonPath("$.email").value("user@example.com"))
+                    .andExpect(jsonPath("$.picture").value("https://example.com/user-picture.jpg"));
         } finally {
             SecurityContextHolder.clearContext();
         }
