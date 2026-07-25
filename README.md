@@ -128,8 +128,30 @@ To check the frontend:
 ```powershell
 cd frontend
 npm run lint
+npm test
 npm run build
 ```
+
+Additional frontend test commands:
+
+```powershell
+# Watch unit, component, and integration tests while developing
+npm run test:watch
+
+# Generate an HTML coverage report in frontend/coverage
+npm run test:coverage
+
+# Install the E2E browser once, then run the Playwright scenarios
+npx playwright install chromium
+npm run test:e2e
+
+# Run lint, Vitest, and the production build together
+npm run check
+```
+
+The frontend tests use Vitest and React Testing Library. API responses are
+mocked with MSW, while Playwright verifies the main dashboard flows in Chromium.
+They do not require a live backend, Google login, or Business Central connection.
 
 ## API endpoints
 
