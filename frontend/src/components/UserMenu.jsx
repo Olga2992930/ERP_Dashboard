@@ -44,10 +44,7 @@ function UserMenu({
     <details className="user-menu" ref={menuRef}>
       <summary className="user-menu-trigger" aria-label="Open user menu">
         <UserAvatar user={currentUser} size="small" />
-        <span className="user-trigger-copy">
-          <strong>{currentUser?.name || 'Current user'}</strong>
-          <span>Account</span>
-        </span>
+        <strong className="user-trigger-label">Account</strong>
       </summary>
 
       <div className="user-popover">

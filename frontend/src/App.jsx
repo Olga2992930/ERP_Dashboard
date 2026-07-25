@@ -13,6 +13,7 @@ import LoadError from './components/LoadError.jsx'
 import UserMenu from './components/UserMenu.jsx'
 
 function App() {
+  const [activeSection, setActiveSection] = useState('overview')
   const [authenticated, setAuthenticated] = useState(null)
   const [loginUrl, setLoginUrl] = useState(null)
   const [logoutUrl, setLogoutUrl] = useState(null)
@@ -21,6 +22,9 @@ function App() {
   const [salesInvoiceKpi, setSalesInvoiceKpi] = useState(null)
   const [postedSalesInvoiceKpi, setPostedSalesInvoiceKpi] = useState(null)
   const [customersWithBalanceDue, setCustomersWithBalanceDue] = useState(null)
+  const [customers, setCustomers] = useState(null)
+  const [salesInvoices, setSalesInvoices] = useState(null)
+  const [postedSalesInvoices, setPostedSalesInvoices] = useState(null)
   const [authError, setAuthError] = useState(null)
   const [loginUrlError, setLoginUrlError] = useState(null)
   const [logoutUrlError, setLogoutUrlError] = useState(null)
@@ -29,6 +33,9 @@ function App() {
   const [salesInvoiceKpiError, setSalesInvoiceKpiError] = useState(null)
   const [postedSalesInvoiceKpiError, setPostedSalesInvoiceKpiError] = useState(null)
   const [customersWithBalanceDueError, setCustomersWithBalanceDueError] = useState(null)
+  const [customersError, setCustomersError] = useState(null)
+  const [salesInvoicesError, setSalesInvoicesError] = useState(null)
+  const [postedSalesInvoicesError, setPostedSalesInvoicesError] = useState(null)
 
   const loadResource = (path, setData, setError, errorMessage) => {
     setError(null)
@@ -73,12 +80,24 @@ function App() {
       'Could not load customers with balance due.',
     )
 
+  const loadCustomers = () =>
+    loadResource('/api/customers', setCustomers, setCustomersError, 'Could not load customers.')
+
+  const loadSalesInvoices = () =>
+    loadResource('/api/sales-invoices', setSalesInvoices, setSalesInvoicesError, 'Could not load sales invoices.')
+
+  const loadPostedSalesInvoices = () =>
+    loadResource('/api/posted-sales-invoices', setPostedSalesInvoices, setPostedSalesInvoicesError, 'Could not load posted invoices.')
+
   const loadProtectedData = () => {
     loadCurrentUser()
     loadCustomerKpi()
     loadSalesInvoiceKpi()
     loadPostedSalesInvoiceKpi()
     loadCustomersWithBalanceDue()
+    loadCustomers()
+    loadSalesInvoices()
+    loadPostedSalesInvoices()
   }
 
   const loadAuthStatus = () => {
@@ -121,6 +140,21 @@ function App() {
     window.location.href = getBackendUrl(path)
   }
 
+  const sections = {
+    overview: ['Analytics', 'Dashboard overview', 'Customers, invoice performance and receivables at a glance.'],
+    customers: ['Customers', 'Customer overview', 'Customer base and outstanding receivables.'],
+    'sales-invoices': ['Sales invoices', 'Current invoice performance', 'Open invoices, remaining amounts and tax totals.'],
+    'posted-invoices': ['Posted invoices', 'Posted invoice totals', 'Finalized invoice volume and value from Business Central.'],
+    receivables: ['Receivables', 'Customer receivables', 'Customers with an outstanding balance due.'],
+  }
+
+  const selectSection = (section) => {
+    setActiveSection(section)
+    window.history.replaceState(null, '', `#${section}`)
+  }
+
+  const [activeEyebrow, , activeDescription] = sections[activeSection]
+
   return (
     <div className={`app-shell${authenticated === true ? ' app-shell--authenticated' : ''}`}>
       <header className="app-header">
@@ -138,19 +172,30 @@ function App() {
           {authenticated === true && (
             <div className="header-context" aria-label="Current workspace">
               <span>
-                <strong>Welcome back, {currentUser?.name || 'ERP user'}</strong>
+                <strong>Welcome back</strong>
                 <small>Here is today&apos;s business overview.</small>
               </span>
             </div>
           )}
 
           {authenticated === true && (
-            <div className="board-state">
+            <div className="board-state" tabIndex="0" aria-describedby="live-data-description">
               <span className="board-state-dot" aria-hidden="true" />
               <span>
                 <strong>Live data</strong>
                 <small>Updated from Business Central</small>
               </span>
+              <div className="board-state-tooltip" id="live-data-description" role="tooltip">
+                <strong>Microsoft Dynamics 365 Business Central</strong>
+                <p>This dashboard uses sample data from the CRONUS SE demo company:</p>
+                <ul>
+                  <li>Customers and outstanding balances</li>
+                  <li>Sales invoices</li>
+                  <li>Posted sales invoices</li>
+                  <li>Customer receivables</li>
+                </ul>
+                <small>No real company or customer data is used.</small>
+              </div>
             </div>
           )}
 
@@ -178,26 +223,26 @@ function App() {
             </div>
             <nav className="side-nav" aria-label="Dashboard navigation">
               <span className="side-nav-label">Main menu</span>
-              <a className="nav-link nav-link--active" href="#overview">
+              <button className={`nav-link${activeSection === 'overview' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('overview')}>
                 <span className="nav-icon" aria-hidden="true">⌂</span>
                 Overview
-              </a>
-              <a className="nav-link" href="#customers">
+              </button>
+              <button className={`nav-link${activeSection === 'customers' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('customers')}>
                 <span className="nav-icon" aria-hidden="true">◎</span>
                 Customers
-              </a>
-              <a className="nav-link" href="#sales-invoices">
+              </button>
+              <button className={`nav-link${activeSection === 'sales-invoices' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('sales-invoices')}>
                 <span className="nav-icon" aria-hidden="true">↗</span>
                 Sales invoices
-              </a>
-              <a className="nav-link" href="#posted-invoices">
+              </button>
+              <button className={`nav-link${activeSection === 'posted-invoices' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('posted-invoices')}>
                 <span className="nav-icon" aria-hidden="true">✓</span>
                 Posted invoices
-              </a>
-              <a className="nav-link" href="#receivables">
+              </button>
+              <button className={`nav-link${activeSection === 'receivables' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('receivables')}>
                 <span className="nav-icon" aria-hidden="true">◷</span>
                 Receivables
-              </a>
+              </button>
             </nav>
 
             {logoutUrl !== null && !logoutUrlError && (
@@ -214,64 +259,60 @@ function App() {
         )}
 
         <main className="dashboard">
-          <section className="page-heading" id="overview">
-            <div className="page-heading-copy">
-              <span className="eyebrow">Analytics</span>
-              <h2>Dashboard overview</h2>
-              <p>Customers, invoice performance and receivables at a glance.</p>
-            </div>
+          {(authenticated !== true || activeSection === 'overview') && (
+            <section className="page-heading">
+              <div className="page-heading-copy">
+                <span className="eyebrow">{activeEyebrow}</span>
+                <p>{activeDescription}</p>
+              </div>
 
-            <div className="page-heading-actions">
-              {authenticated === false &&
-                (loginUrlError ? (
-                  <LoadError message={loginUrlError} onRetry={loadLoginUrl} compact />
-                ) : loginUrl === null ? (
-                  <span className="loading-inline">Preparing secure login...</span>
-                ) : (
-                  <button
-                    className="button button--primary"
-                    type="button"
-                    onClick={() => navigateToBackend(loginUrl)}
-                  >
-                    Log in with Google
-                  </button>
-                ))}
-            </div>
-          </section>
+              <div className="page-heading-actions">
+                {authenticated === false &&
+                  (loginUrlError ? (
+                    <LoadError message={loginUrlError} onRetry={loadLoginUrl} compact />
+                  ) : loginUrl === null ? (
+                    <span className="loading-inline">Preparing secure login...</span>
+                  ) : (
+                    <button
+                      className="button button--primary"
+                      type="button"
+                      onClick={() => navigateToBackend(loginUrl)}
+                    >
+                      Log in with Google
+                    </button>
+                  ))}
+              </div>
+            </section>
+          )}
 
           {authError && <LoadError message={authError} onRetry={loadAuthStatus} />}
 
           {authenticated === true && (
             <div className="dashboard-content">
-              <SummaryKpiRow
-                customerKpi={customerKpi}
-                salesInvoiceKpi={salesInvoiceKpi}
-                postedSalesInvoiceKpi={postedSalesInvoiceKpi}
-              />
+              {activeSection === 'overview' && (
+                <SummaryKpiRow
+                  customerKpi={customerKpi}
+                  salesInvoiceKpi={salesInvoiceKpi}
+                  postedSalesInvoiceKpi={postedSalesInvoiceKpi}
+                  onSelectSection={selectSection}
+                />
+              )}
 
-              <CustomerKpiSection
-                customerKpi={customerKpi}
-                error={customerKpiError}
-                onRetry={loadCustomerKpi}
-              />
+              {activeSection === 'customers' && (
+                <CustomerKpiSection customerKpi={customerKpi} error={customerKpiError} onRetry={loadCustomerKpi} records={customers} recordsError={customersError} onRetryRecords={loadCustomers} />
+              )}
 
-              <SalesInvoiceKpiSection
-                salesInvoiceKpi={salesInvoiceKpi}
-                error={salesInvoiceKpiError}
-                onRetry={loadSalesInvoiceKpi}
-              />
+              {activeSection === 'sales-invoices' && (
+                <SalesInvoiceKpiSection salesInvoiceKpi={salesInvoiceKpi} error={salesInvoiceKpiError} onRetry={loadSalesInvoiceKpi} records={salesInvoices} recordsError={salesInvoicesError} onRetryRecords={loadSalesInvoices} />
+              )}
 
-              <PostedSalesInvoiceKpiSection
-                postedSalesInvoiceKpi={postedSalesInvoiceKpi}
-                error={postedSalesInvoiceKpiError}
-                onRetry={loadPostedSalesInvoiceKpi}
-              />
+              {activeSection === 'posted-invoices' && (
+                <PostedSalesInvoiceKpiSection postedSalesInvoiceKpi={postedSalesInvoiceKpi} error={postedSalesInvoiceKpiError} onRetry={loadPostedSalesInvoiceKpi} records={postedSalesInvoices} recordsError={postedSalesInvoicesError} onRetryRecords={loadPostedSalesInvoices} />
+              )}
 
-              <CustomerDebtTable
-                customers={customersWithBalanceDue}
-                error={customersWithBalanceDueError}
-                onRetry={loadCustomersWithBalanceDue}
-              />
+              {activeSection === 'receivables' && (
+                <CustomerDebtTable customers={customersWithBalanceDue} error={customersWithBalanceDueError} onRetry={loadCustomersWithBalanceDue} />
+              )}
             </div>
           )}
         </main>
