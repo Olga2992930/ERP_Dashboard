@@ -172,7 +172,7 @@ function App() {
           </div>
 
           {authenticated === true && (
-            <div className="header-context" aria-label="Current workspace">
+            <div className="header-context" aria-label={t('Current workspace')}>
               <span>
                 <strong>{t('Welcome back')}</strong>
                 <small>{t("Here is today's business overview.")}</small>
@@ -240,7 +240,7 @@ function App() {
             <div className="side-panel-brand">
               <img className="side-panel-brand-logo" src={erpBoardLogo} alt="ERP Board" />
             </div>
-            <nav className="side-nav" aria-label="Dashboard navigation">
+            <nav className="side-nav" aria-label={t('Dashboard navigation')}>
               <span className="side-nav-label">{t('Main menu')}</span>
               <button className={`nav-link${activeSection === 'overview' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('overview')}>
                 <span className="nav-icon" aria-hidden="true">⌂</span>
@@ -290,14 +290,14 @@ function App() {
                   (loginUrlError ? (
                     <LoadError message={loginUrlError} onRetry={loadLoginUrl} compact />
                   ) : loginUrl === null ? (
-                    <span className="loading-inline">Preparing secure login...</span>
+                    <span className="loading-inline">{t('Preparing secure login...')}</span>
                   ) : (
                     <button
                       className="button button--primary"
                       type="button"
                       onClick={() => navigateToBackend(loginUrl)}
                     >
-                      Log in with Google
+                      {t('Log in with Google')}
                     </button>
                   ))}
               </div>

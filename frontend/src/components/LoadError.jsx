@@ -4,7 +4,7 @@ function LoadError({ message, onRetry, compact = false }) {
   const { t } = useLanguage()
   return (
     <div className={`error-state${compact ? ' error-state--compact' : ''}`} role="alert">
-      <p>{message}</p>
+      <p>{t(message)}</p>
       <button className="button button--retry" type="button" onClick={onRetry}>
         {t('Retry')}
       </button>

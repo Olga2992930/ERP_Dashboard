@@ -33,7 +33,7 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
       ) : records.length === 0 ? <div className="empty-state"><strong>{t('No matching records')}</strong></div> : (
         <div className="table-wrapper" role="region" aria-label={title} tabIndex="0">
           <table className="customer-table kpi-detail-table">
-            <thead><tr>{type === 'customer' ? <><th>Number</th><th>Customer</th><th>Email</th><th className="amount-cell">Balance due</th><th className="amount-cell">Credit limit</th></> : <><th>Number</th><th>Customer</th><th>Date</th><th>Due date</th><th className="amount-cell">Remaining</th><th className="amount-cell">Total</th></>}</tr></thead>
+            <thead><tr>{type === 'customer' ? <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Email')}</th><th className="amount-cell">{t('Balance due')}</th><th className="amount-cell">{t('Credit limit')}</th></> : <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Due date')}</th><th className="amount-cell">{t('Remaining')}</th><th className="amount-cell">{t('Total')}</th></>}</tr></thead>
             <tbody>{records.map((record) => type === 'customer' ? (
               <tr key={record.id}><td>{record.number}</td><td>{record.displayName}</td><td>{record.email || '-'}</td><td className="amount-cell">{amountFormatter.format(record.balanceDue)}</td><td className="amount-cell">{amountFormatter.format(record.creditLimit)}</td></tr>
             ) : (
@@ -47,18 +47,19 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
 }
 
 function SummaryCard({ label, value, symbol, tone, onClick }) {
+  const { t } = useLanguage()
   return (
     <button
       className={`summary-kpi-card summary-kpi-card--${tone}`}
       type="button"
       onClick={onClick}
-      aria-label={`Open ${label} section`}
+      aria-label={t('Open {label} section', { label })}
     >
       <span className="summary-kpi-accent" aria-hidden="true" />
       <span className="summary-kpi-symbol" aria-hidden="true">{symbol}</span>
       <span className="summary-kpi-label">{label}</span>
       <strong className="summary-kpi-value">{value ?? '—'}</strong>
-      <small>Business Central</small>
+      <small>{t('Business Central')}</small>
     </button>
   )
 }
@@ -66,7 +67,7 @@ function SummaryCard({ label, value, symbol, tone, onClick }) {
 export function SummaryKpiRow({ customerKpi, salesInvoiceKpi, postedSalesInvoiceKpi, onSelectSection }) {
   const { t } = useLanguage()
   return (
-    <section className="summary-kpis" aria-label="Key business indicators">
+    <section className="summary-kpis" aria-label={t('Key business indicators')}>
       <SummaryCard
         label={t('Customers')}
         value={customerKpi?.customersCount}
@@ -118,7 +119,7 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
       {error ? (
         <LoadError message={error} onRetry={onRetry} />
       ) : customerKpi === null ? (
-        <p className="loading-copy">Loading customer KPI...</p>
+        <p className="loading-copy">{t('Loading customer KPI...')}</p>
       ) : (
         <div className="kpi-list">
           <KpiCard label={t('Customers')} value={customerKpi.customersCount} tone="primary" onClick={() => show('customers')} expanded={detail === 'customers'} />
@@ -146,7 +147,7 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
           />
         </div>
       )}
-      {detail && <DataBreakdown title={`${detail === 'customers' ? 'Customers' : detail === 'with-balance' ? 'Customers with balance due' : detail === 'total' ? 'Total balance due' : detail === 'average' ? 'Average balance due' : 'Largest balance due'} details`} description="Records used to calculate this KPI in Business Central." records={detailRecords} error={recordsError} onRetry={onRetryRecords} type="customer" />}
+      {detail && <DataBreakdown title={`${t(detail === 'customers' ? 'Customers' : detail === 'with-balance' ? 'Customers with balance due' : detail === 'total' ? 'Total balance due' : detail === 'average' ? 'Average balance due' : 'Largest balance due')} ${t('details')}`} description={t('Records used to calculate this KPI in Business Central.')} records={detailRecords} error={recordsError} onRetry={onRetryRecords} type="customer" />}
     </section>
   )
 }
@@ -168,7 +169,7 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
       {error ? (
         <LoadError message={error} onRetry={onRetry} />
       ) : salesInvoiceKpi === null ? (
-        <p className="loading-copy">Loading sales invoice KPI...</p>
+        <p className="loading-copy">{t('Loading sales invoice KPI...')}</p>
       ) : (
         <div className="kpi-list">
           <KpiCard label={t('Invoices')} value={salesInvoiceKpi.invoicesCount} tone="primary" onClick={() => show('invoices')} expanded={detail === 'invoices'} />
@@ -204,7 +205,7 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
           />
         </div>
       )}
-      {detail && <DataBreakdown title="Sales invoice details" description="Invoices used to calculate the selected KPI." records={detailRecords} error={recordsError} onRetry={onRetryRecords} type="invoice" />}
+      {detail && <DataBreakdown title={t('Sales invoice details')} description={t('Invoices used to calculate the selected KPI.')} records={detailRecords} error={recordsError} onRetry={onRetryRecords} type="invoice" />}
     </section>
   )
 }
@@ -225,7 +226,7 @@ export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onR
       {error ? (
         <LoadError message={error} onRetry={onRetry} />
       ) : postedSalesInvoiceKpi === null ? (
-        <p className="loading-copy">Loading posted sales invoice KPI...</p>
+        <p className="loading-copy">{t('Loading posted sales invoice KPI...')}</p>
       ) : (
         <div className="kpi-list">
           <KpiCard
@@ -254,7 +255,7 @@ export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onR
           />
         </div>
       )}
-      {detail && <DataBreakdown title="Posted invoice details" description="Posted invoices used to calculate the selected KPI." records={records} error={recordsError} onRetry={onRetryRecords} type="invoice" />}
+      {detail && <DataBreakdown title={t('Posted invoice details')} description={t('Posted invoices used to calculate the selected KPI.')} records={records} error={recordsError} onRetry={onRetryRecords} type="invoice" />}
     </section>
   )
 }

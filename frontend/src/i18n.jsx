@@ -31,14 +31,41 @@ const swedish = {
   'This dashboard uses sample data from the CRONUS SE demo company:': 'Denna dashboard använder exempeldata från demoföretaget CRONUS SE:',
   'Customers and outstanding balances': 'Kunder och utestående saldon',
   'No real company or customer data is used.': 'Inga riktiga företags- eller kunduppgifter används.',
+  'Could not load current user.': 'Det gick inte att läsa in den aktuella användaren.',
+  'Could not load customer KPI.': 'Det gick inte att läsa in kund-KPI.',
+  'Could not load sales invoice KPI.': 'Det gick inte att läsa in KPI för kundfakturor.',
+  'Could not load posted sales invoice KPI.': 'Det gick inte att läsa in KPI för bokförda fakturor.',
+  'Could not load customers with balance due.': 'Det gick inte att läsa in kunder med utestående saldo.',
+  'Could not load customers.': 'Det gick inte att läsa in kunder.',
+  'Could not load sales invoices.': 'Det gick inte att läsa in kundfakturor.',
+  'Could not load posted invoices.': 'Det gick inte att läsa in bokförda fakturor.',
+  'Could not check authentication status.': 'Det gick inte att kontrollera inloggningsstatus.',
+  'Could not load the login link.': 'Det gick inte att läsa in inloggningslänken.',
+  'Could not load the logout link.': 'Det gick inte att läsa in utloggningslänken.',
+  'Loading customer KPI...': 'Laddar kund-KPI...',
+  'Loading sales invoice KPI...': 'Laddar KPI för kundfakturor...',
+  'Loading posted sales invoice KPI...': 'Laddar KPI för bokförda fakturor...',
+  'Key business indicators': 'Viktiga affärsindikatorer', 'Dashboard navigation': 'Dashboardnavigering',
+  'Current workspace': 'Aktuell arbetsyta', details: 'detaljer',
+  'Open {label} section': 'Öppna avsnittet {label}',
 }
 
-const LanguageContext = createContext(null)
+const interpolate = (text, variables = {}) =>
+  Object.entries(variables).reduce((result, [key, value]) => result.replace(`{${key}}`, value), text)
+
+const LanguageContext = createContext({
+  language: 'en',
+  setLanguage: () => {},
+  t: interpolate,
+})
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(() => localStorage.getItem('erp-language') || 'en')
+  const [language, setLanguage] = useState(() => localStorage.getItem('erp-language') === 'sv' ? 'sv' : 'en')
   useEffect(() => { localStorage.setItem('erp-language', language); document.documentElement.lang = language }, [language])
-  const t = (text) => language === 'sv' ? (swedish[text] || text) : text
+  const t = (text, variables = {}) => {
+    const translated = language === 'sv' ? (swedish[text] || text) : text
+    return interpolate(translated, variables)
+  }
   return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>
 }
 

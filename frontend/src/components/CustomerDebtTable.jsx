@@ -29,7 +29,7 @@ function CustomerDebtTable({ customers, error, onRetry }) {
         <div
           className="table-wrapper"
           role="region"
-          aria-label="Customers with balance due"
+          aria-label={t('Customers with balance due')}
           tabIndex="0"
         >
           <table className="customer-table">
