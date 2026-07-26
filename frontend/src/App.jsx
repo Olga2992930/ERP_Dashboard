@@ -11,8 +11,10 @@ import {
 } from './components/KpiSections.jsx'
 import LoadError from './components/LoadError.jsx'
 import UserMenu from './components/UserMenu.jsx'
+import { useLanguage } from './i18n.jsx'
 
 function App() {
+  const { language, setLanguage, t } = useLanguage()
   const [activeSection, setActiveSection] = useState('overview')
   const [authenticated, setAuthenticated] = useState(null)
   const [loginUrl, setLoginUrl] = useState(null)
@@ -141,11 +143,11 @@ function App() {
   }
 
   const sections = {
-    overview: ['Analytics', 'Dashboard overview', 'Customers, invoice performance and receivables at a glance.'],
-    customers: ['Customers', 'Customer overview', 'Customer base and outstanding receivables.'],
-    'sales-invoices': ['Sales invoices', 'Current invoice performance', 'Open invoices, remaining amounts and tax totals.'],
-    'posted-invoices': ['Posted invoices', 'Posted invoice totals', 'Finalized invoice volume and value from Business Central.'],
-    receivables: ['Receivables', 'Customer receivables', 'Customers with an outstanding balance due.'],
+    overview: [t('Analytics'), t('Dashboard overview'), t('Customers, invoice performance and receivables at a glance.')],
+    customers: [t('Customers'), t('Customer overview'), t('Customer base and outstanding receivables.')],
+    'sales-invoices': [t('Sales invoices'), t('Current invoice performance'), t('Open invoices, remaining amounts and tax totals.')],
+    'posted-invoices': [t('Posted invoices'), t('Posted invoice totals'), t('Finalized invoice volume and value from Business Central.')],
+    receivables: [t('Receivables'), t('Customer receivables'), t('Customers with an outstanding balance due.')],
   }
 
   const selectSection = (section) => {
@@ -172,8 +174,8 @@ function App() {
           {authenticated === true && (
             <div className="header-context" aria-label="Current workspace">
               <span>
-                <strong>Welcome back</strong>
-                <small>Here is today&apos;s business overview.</small>
+                <strong>{t('Welcome back')}</strong>
+                <small>{t("Here is today's business overview.")}</small>
               </span>
             </div>
           )}
@@ -182,24 +184,41 @@ function App() {
             <div className="board-state" tabIndex="0" aria-describedby="live-data-description">
               <span className="board-state-dot" aria-hidden="true" />
               <span>
-                <strong>Live data</strong>
-                <small>Updated from Business Central</small>
+                <strong>{t('Live data')}</strong>
+                <small>{t('Updated from Business Central')}</small>
               </span>
               <div className="board-state-tooltip" id="live-data-description" role="tooltip">
                 <strong>Microsoft Dynamics 365 Business Central</strong>
-                <p>This dashboard uses sample data from the CRONUS SE demo company:</p>
+                <p>{t('This dashboard uses sample data from the CRONUS SE demo company:')}</p>
                 <ul>
-                  <li>Customers and outstanding balances</li>
-                  <li>Sales invoices</li>
-                  <li>Posted sales invoices</li>
-                  <li>Customer receivables</li>
+                  <li>{t('Customers and outstanding balances')}</li>
+                  <li>{t('Sales invoices')}</li>
+                  <li>{t('Posted invoices')}</li>
+                  <li>{t('Customer receivables')}</li>
                 </ul>
-                <small>No real company or customer data is used.</small>
+                <small>{t('No real company or customer data is used.')}</small>
               </div>
             </div>
           )}
 
           <div className="header-actions">
+            {authenticated === true && (
+              <details className="language-menu">
+                <summary aria-label={t('Language')}>
+                  <img src={`https://flagcdn.com/w40/${language === 'sv' ? 'se' : 'gb'}.png`} alt="" />
+                  <span>{language === 'sv' ? 'SV' : 'EN'}</span>
+                  <span className="language-chevron" aria-hidden="true">⌄</span>
+                </summary>
+                <div className="language-options">
+                  <button type="button" className={language === 'en' ? 'language-option--active' : ''} onClick={(event) => { setLanguage('en'); event.currentTarget.closest('details').removeAttribute('open') }}>
+                    <img src="https://flagcdn.com/w40/gb.png" alt="" /><span>EN</span>
+                  </button>
+                  <button type="button" className={language === 'sv' ? 'language-option--active' : ''} onClick={(event) => { setLanguage('sv'); event.currentTarget.closest('details').removeAttribute('open') }}>
+                    <img src="https://flagcdn.com/w40/se.png" alt="" /><span>SV</span>
+                  </button>
+                </div>
+              </details>
+            )}
             {authenticated === true && (
               <UserMenu
                 currentUser={currentUser}
@@ -222,26 +241,26 @@ function App() {
               <img className="side-panel-brand-logo" src={erpBoardLogo} alt="ERP Board" />
             </div>
             <nav className="side-nav" aria-label="Dashboard navigation">
-              <span className="side-nav-label">Main menu</span>
+              <span className="side-nav-label">{t('Main menu')}</span>
               <button className={`nav-link${activeSection === 'overview' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('overview')}>
                 <span className="nav-icon" aria-hidden="true">⌂</span>
-                Overview
+                {t('Overview')}
               </button>
               <button className={`nav-link${activeSection === 'customers' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('customers')}>
                 <span className="nav-icon" aria-hidden="true">◎</span>
-                Customers
+                {t('Customers')}
               </button>
               <button className={`nav-link${activeSection === 'sales-invoices' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('sales-invoices')}>
                 <span className="nav-icon" aria-hidden="true">↗</span>
-                Sales invoices
+                {t('Sales invoices')}
               </button>
               <button className={`nav-link${activeSection === 'posted-invoices' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('posted-invoices')}>
                 <span className="nav-icon" aria-hidden="true">✓</span>
-                Posted invoices
+                {t('Posted invoices')}
               </button>
               <button className={`nav-link${activeSection === 'receivables' ? ' nav-link--active' : ''}`} type="button" onClick={() => selectSection('receivables')}>
                 <span className="nav-icon" aria-hidden="true">◷</span>
-                Receivables
+                {t('Receivables')}
               </button>
             </nav>
 
@@ -252,7 +271,7 @@ function App() {
                 onClick={() => navigateToBackend(logoutUrl)}
               >
                 <span aria-hidden="true">↪</span>
-                Log out
+                {t('Log out')}
               </button>
             )}
           </aside>

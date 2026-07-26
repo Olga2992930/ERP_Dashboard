@@ -1,27 +1,29 @@
 import { amountFormatter } from '../formatters.js'
 import LoadError from './LoadError.jsx'
+import { useLanguage } from '../i18n.jsx'
 
 function CustomerDebtTable({ customers, error, onRetry }) {
+  const { t } = useLanguage()
   return (
     <section className="dashboard-section" id="receivables">
       <div className="section-heading section-heading--table">
         <div>
-          <span className="eyebrow">Receivables</span>
-          <h2>Customers with balance due</h2>
-          <p>Accounts that currently require payment follow-up.</p>
+          <span className="eyebrow">{t('Receivables')}</span>
+          <h2>{t('Customers with balance due')}</h2>
+          <p>{t('Accounts that currently require payment follow-up.')}</p>
         </div>
         {customers !== null && !error && (
-          <span className="count-badge">{customers.length} customers</span>
+          <span className="count-badge">{customers.length} {t('Customers').toLowerCase()}</span>
         )}
       </div>
       {error ? (
         <LoadError message={error} onRetry={onRetry} />
       ) : customers === null ? (
-        <p className="loading-copy">Loading customers...</p>
+        <p className="loading-copy">{t('Loading customers...')}</p>
       ) : customers.length === 0 ? (
         <div className="empty-state">
-          <strong>All clear</strong>
-          <span>No customers have a balance due.</span>
+          <strong>{t('All clear')}</strong>
+          <span>{t('No customers have a balance due.')}</span>
         </div>
       ) : (
         <div
@@ -33,11 +35,11 @@ function CustomerDebtTable({ customers, error, onRetry }) {
           <table className="customer-table">
             <thead>
               <tr>
-                <th>Number</th>
-                <th>Customer</th>
-                <th>Email</th>
-                <th className="amount-cell">Balance due</th>
-                <th>Currency</th>
+                <th>{t('Number')}</th>
+                <th>{t('Customer')}</th>
+                <th>{t('Email')}</th>
+                <th className="amount-cell">{t('Balance due')}</th>
+                <th>{t('Currency')}</th>
               </tr>
             </thead>
             <tbody>

@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { amountFormatter } from '../formatters.js'
 import LoadError from './LoadError.jsx'
+import { useLanguage } from '../i18n.jsx'
 
 function KpiCard({ label, value, tone = 'default', onClick, expanded }) {
+  const { t } = useLanguage()
   return (
     <button className={`kpi-card kpi-card--${tone}`} type="button" onClick={onClick} aria-expanded={expanded}>
       <span className="kpi-label">{label}</span>
       <strong className="kpi-value">{value}</strong>
-      <small className="kpi-card-hint">View details</small>
+      <small className="kpi-card-hint">{t('View details')}</small>
     </button>
   )
 }
 
 function DataBreakdown({ title, description, records, error, onRetry, type }) {
+  const { t } = useLanguage()
   const breakdownRef = useRef(null)
 
   useEffect(() => {
@@ -23,11 +26,11 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
     <div className="kpi-breakdown" ref={breakdownRef}>
       <div className="kpi-breakdown-heading">
         <div><h3>{title}</h3><p>{description}</p></div>
-        {records && <span className="count-badge">{records.length} records</span>}
+        {records && <span className="count-badge">{records.length} {t('records')}</span>}
       </div>
       {error ? <LoadError message={error} onRetry={onRetry} /> : records === null ? (
-        <p className="loading-copy">Loading details...</p>
-      ) : records.length === 0 ? <div className="empty-state"><strong>No matching records</strong></div> : (
+        <p className="loading-copy">{t('Loading details...')}</p>
+      ) : records.length === 0 ? <div className="empty-state"><strong>{t('No matching records')}</strong></div> : (
         <div className="table-wrapper" role="region" aria-label={title} tabIndex="0">
           <table className="customer-table kpi-detail-table">
             <thead><tr>{type === 'customer' ? <><th>Number</th><th>Customer</th><th>Email</th><th className="amount-cell">Balance due</th><th className="amount-cell">Credit limit</th></> : <><th>Number</th><th>Customer</th><th>Date</th><th>Due date</th><th className="amount-cell">Remaining</th><th className="amount-cell">Total</th></>}</tr></thead>
@@ -61,31 +64,32 @@ function SummaryCard({ label, value, symbol, tone, onClick }) {
 }
 
 export function SummaryKpiRow({ customerKpi, salesInvoiceKpi, postedSalesInvoiceKpi, onSelectSection }) {
+  const { t } = useLanguage()
   return (
     <section className="summary-kpis" aria-label="Key business indicators">
       <SummaryCard
-        label="Customers"
+        label={t('Customers')}
         value={customerKpi?.customersCount}
         symbol="C"
         tone="purple"
         onClick={() => onSelectSection('customers')}
       />
       <SummaryCard
-        label="Balance due"
+        label={t('Balance due')}
         value={customerKpi ? amountFormatter.format(customerKpi.totalBalanceDue) : null}
         symbol="$"
         tone="cyan"
         onClick={() => onSelectSection('receivables')}
       />
       <SummaryCard
-        label="Open invoices"
+        label={t('Open invoices')}
         value={salesInvoiceKpi?.openInvoicesCount}
         symbol="I"
         tone="violet"
         onClick={() => onSelectSection('sales-invoices')}
       />
       <SummaryCard
-        label="Posted invoices"
+        label={t('Posted invoices')}
         value={postedSalesInvoiceKpi?.postedInvoicesCount}
         symbol="P"
         tone="blue"
@@ -96,6 +100,7 @@ export function SummaryKpiRow({ customerKpi, salesInvoiceKpi, postedSalesInvoice
 }
 
 export function CustomerKpiSection({ customerKpi, error, onRetry, records, recordsError, onRetryRecords }) {
+  const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
   const show = (key) => setDetail(detail === key ? null : key)
   const balanceRecords = records?.filter((record) => record.balanceDue > 0) ?? records
@@ -105,9 +110,9 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
     <section className="dashboard-section" id="customers">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">Customers</span>
-          <h2>Customer overview</h2>
-          <p>Customer base and outstanding receivables.</p>
+          <span className="eyebrow">{t('Customers')}</span>
+          <h2>{t('Customer overview')}</h2>
+          <p>{t('Customer base and outstanding receivables.')}</p>
         </div>
       </div>
       {error ? (
@@ -116,26 +121,26 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
         <p className="loading-copy">Loading customer KPI...</p>
       ) : (
         <div className="kpi-list">
-          <KpiCard label="Customers" value={customerKpi.customersCount} tone="primary" onClick={() => show('customers')} expanded={detail === 'customers'} />
+          <KpiCard label={t('Customers')} value={customerKpi.customersCount} tone="primary" onClick={() => show('customers')} expanded={detail === 'customers'} />
           <KpiCard
-            label="Customers with balance due"
+            label={t('Customers with balance due')}
             value={customerKpi.customersWithBalanceDueCount}
             tone="attention"
             onClick={() => show('with-balance')} expanded={detail === 'with-balance'}
           />
           <KpiCard
-            label="Total balance due"
+            label={t('Total balance due')}
             value={amountFormatter.format(customerKpi.totalBalanceDue)}
             tone="attention"
             onClick={() => show('total')} expanded={detail === 'total'}
           />
           <KpiCard
-            label="Average balance due"
+            label={t('Average balance due')}
             value={amountFormatter.format(customerKpi.averageBalanceDue)}
             onClick={() => show('average')} expanded={detail === 'average'}
           />
           <KpiCard
-            label="Largest balance due"
+            label={t('Largest balance due')}
             value={amountFormatter.format(customerKpi.largestBalanceDue)}
             onClick={() => show('largest')} expanded={detail === 'largest'}
           />
@@ -147,6 +152,7 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
 }
 
 export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, records, recordsError, onRetryRecords }) {
+  const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
   const show = (key) => setDetail(detail === key ? null : key)
   const detailRecords = detail === 'open' || detail === 'remaining' ? records?.filter((record) => record.remainingAmount > 0) ?? records : records
@@ -154,9 +160,9 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
     <section className="dashboard-section" id="sales-invoices">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">Sales invoices</span>
-          <h2>Current invoice performance</h2>
-          <p>Open invoices, remaining amounts and tax totals.</p>
+          <span className="eyebrow">{t('Sales invoices')}</span>
+          <h2>{t('Current invoice performance')}</h2>
+          <p>{t('Open invoices, remaining amounts and tax totals.')}</p>
         </div>
       </div>
       {error ? (
@@ -165,33 +171,33 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
         <p className="loading-copy">Loading sales invoice KPI...</p>
       ) : (
         <div className="kpi-list">
-          <KpiCard label="Invoices" value={salesInvoiceKpi.invoicesCount} tone="primary" onClick={() => show('invoices')} expanded={detail === 'invoices'} />
+          <KpiCard label={t('Invoices')} value={salesInvoiceKpi.invoicesCount} tone="primary" onClick={() => show('invoices')} expanded={detail === 'invoices'} />
           <KpiCard
-            label="Open invoices"
+            label={t('Open invoices')}
             value={salesInvoiceKpi.openInvoicesCount}
             tone="attention"
             onClick={() => show('open')} expanded={detail === 'open'}
           />
           <KpiCard
-            label="Remaining amount"
+            label={t('Remaining amount')}
             value={amountFormatter.format(salesInvoiceKpi.totalRemainingAmount)}
             tone="attention"
             onClick={() => show('remaining')} expanded={detail === 'remaining'}
           />
           <KpiCard
-            label="Total excluding tax"
+            label={t('Total excluding tax')}
             value={amountFormatter.format(salesInvoiceKpi.totalAmountExcludingTax)}
             tone="blue"
             onClick={() => show('excluding-tax')} expanded={detail === 'excluding-tax'}
           />
           <KpiCard
-            label="Total tax"
+            label={t('Total tax')}
             value={amountFormatter.format(salesInvoiceKpi.totalTaxAmount)}
             tone="positive"
             onClick={() => show('tax')} expanded={detail === 'tax'}
           />
           <KpiCard
-            label="Total including tax"
+            label={t('Total including tax')}
             value={amountFormatter.format(salesInvoiceKpi.totalAmountIncludingTax)}
             tone="violet"
             onClick={() => show('including-tax')} expanded={detail === 'including-tax'}
@@ -204,15 +210,16 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
 }
 
 export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onRetry, records, recordsError, onRetryRecords }) {
+  const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
   const show = (key) => setDetail(detail === key ? null : key)
   return (
     <section className="dashboard-section" id="posted-invoices">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">Posted invoices</span>
-          <h2>Posted invoice totals</h2>
-          <p>Finalized invoice volume and value from Business Central.</p>
+          <span className="eyebrow">{t('Posted invoices')}</span>
+          <h2>{t('Posted invoice totals')}</h2>
+          <p>{t('Finalized invoice volume and value from Business Central.')}</p>
         </div>
       </div>
       {error ? (
@@ -222,25 +229,25 @@ export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onR
       ) : (
         <div className="kpi-list">
           <KpiCard
-            label="Posted invoices"
+            label={t('Posted invoices')}
             value={postedSalesInvoiceKpi.postedInvoicesCount}
             tone="positive"
             onClick={() => show('posted')} expanded={detail === 'posted'}
           />
           <KpiCard
-            label="Total excluding tax"
+            label={t('Total excluding tax')}
             value={amountFormatter.format(postedSalesInvoiceKpi.totalAmountExcludingTax)}
             tone="blue"
             onClick={() => show('excluding-tax')} expanded={detail === 'excluding-tax'}
           />
           <KpiCard
-            label="Total tax"
+            label={t('Total tax')}
             value={amountFormatter.format(postedSalesInvoiceKpi.totalTaxAmount)}
             tone="positive"
             onClick={() => show('tax')} expanded={detail === 'tax'}
           />
           <KpiCard
-            label="Total including tax"
+            label={t('Total including tax')}
             value={amountFormatter.format(postedSalesInvoiceKpi.totalAmountIncludingTax)}
             tone="violet"
             onClick={() => show('including-tax')} expanded={detail === 'including-tax'}

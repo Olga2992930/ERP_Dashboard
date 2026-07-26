@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import LoadError from './LoadError.jsx'
+import { useLanguage } from '../i18n.jsx'
 
 function UserAvatar({ user, size }) {
   const [failedPicture, setFailedPicture] = useState(null)
@@ -26,6 +27,7 @@ function UserMenu({
   onRetryLogoutUrl,
   onLogout,
 }) {
+  const { t } = useLanguage()
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -42,19 +44,19 @@ function UserMenu({
 
   return (
     <details className="user-menu" ref={menuRef}>
-      <summary className="user-menu-trigger" aria-label="Open user menu">
+      <summary className="user-menu-trigger" aria-label={t('Account')}>
         <UserAvatar user={currentUser} size="small" />
-        <strong className="user-trigger-label">Account</strong>
+        <strong className="user-trigger-label">{t('Account')}</strong>
       </summary>
 
       <div className="user-popover">
         <div className="user-popover-header">
-          <span>Current user</span>
+          <span>{t('Current user')}</span>
           {logoutUrlError ? null : logoutUrl === null ? (
-            <span className="user-action-loading">Loading...</span>
+            <span className="user-action-loading">{t('Loading...')}</span>
           ) : (
             <button className="profile-logout" type="button" onClick={() => onLogout(logoutUrl)}>
-              Log out
+              {t('Log out')}
             </button>
           )}
         </div>
@@ -62,7 +64,7 @@ function UserMenu({
         {currentUserError ? (
           <LoadError message={currentUserError} onRetry={onRetryCurrentUser} compact />
         ) : currentUser === null ? (
-          <p className="loading-copy">Loading user...</p>
+          <p className="loading-copy">{t('Loading user...')}</p>
         ) : (
           <div className="user-profile">
             <UserAvatar user={currentUser} size="large" />
