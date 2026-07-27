@@ -19,7 +19,9 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
   const breakdownRef = useRef(null)
 
   useEffect(() => {
-    breakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    if (typeof breakdownRef.current?.scrollIntoView === 'function') {
+      breakdownRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
   }, [])
 
   return (
@@ -103,7 +105,15 @@ export function SummaryKpiRow({ customerKpi, salesInvoiceKpi, postedSalesInvoice
 export function CustomerKpiSection({ customerKpi, error, onRetry, records, recordsError, onRetryRecords }) {
   const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
-  const show = (key) => setDetail(detail === key ? null : key)
+  const recordsRequested = useRef(false)
+  const show = (key) => {
+    const opening = detail !== key
+    setDetail(opening ? key : null)
+    if (opening && records === null && !recordsError && !recordsRequested.current) {
+      recordsRequested.current = true
+      onRetryRecords()
+    }
+  }
   const balanceRecords = records?.filter((record) => record.balanceDue > 0) ?? records
   const largestBalance = records?.reduce((largest, record) => Math.max(largest, record.balanceDue), 0)
   const detailRecords = detail === 'with-balance' || detail === 'total' ? balanceRecords : detail === 'largest' && records ? records.filter((record) => record.balanceDue === largestBalance) : records
@@ -155,7 +165,15 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
 export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, records, recordsError, onRetryRecords }) {
   const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
-  const show = (key) => setDetail(detail === key ? null : key)
+  const recordsRequested = useRef(false)
+  const show = (key) => {
+    const opening = detail !== key
+    setDetail(opening ? key : null)
+    if (opening && records === null && !recordsError && !recordsRequested.current) {
+      recordsRequested.current = true
+      onRetryRecords()
+    }
+  }
   const detailRecords = detail === 'open' || detail === 'remaining' ? records?.filter((record) => record.remainingAmount > 0) ?? records : records
   return (
     <section className="dashboard-section" id="sales-invoices">
@@ -213,7 +231,15 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
 export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onRetry, records, recordsError, onRetryRecords }) {
   const { t } = useLanguage()
   const [detail, setDetail] = useState(null)
-  const show = (key) => setDetail(detail === key ? null : key)
+  const recordsRequested = useRef(false)
+  const show = (key) => {
+    const opening = detail !== key
+    setDetail(opening ? key : null)
+    if (opening && records === null && !recordsError && !recordsRequested.current) {
+      recordsRequested.current = true
+      onRetryRecords()
+    }
+  }
   return (
     <section className="dashboard-section" id="posted-invoices">
       <div className="section-heading">

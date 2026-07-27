@@ -97,9 +97,6 @@ function App() {
     loadSalesInvoiceKpi()
     loadPostedSalesInvoiceKpi()
     loadCustomersWithBalanceDue()
-    loadCustomers()
-    loadSalesInvoices()
-    loadPostedSalesInvoices()
   }
 
   const loadAuthStatus = () => {

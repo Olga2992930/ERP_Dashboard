@@ -1,10 +1,11 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App.jsx'
 import {
   backendUrl,
+  customers,
   customersWithBalanceDue,
 } from './test/msw/handlers.js'
 import { server } from './test/msw/server.js'
@@ -67,6 +68,48 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Fjord Trading AB')).toBeInTheDocument()
     expect(window.location.hash).toBe('#receivables')
+  })
+
+  it('loads full customer records only when a customer KPI is opened', async () => {
+    const user = userEvent.setup()
+    let customerRequests = 0
+    let salesInvoiceRequests = 0
+    let postedInvoiceRequests = 0
+
+    server.use(
+      http.get(`${backendUrl}/api/customers`, () => {
+        customerRequests += 1
+        return HttpResponse.json(customers)
+      }),
+      http.get(`${backendUrl}/api/sales-invoices`, () => {
+        salesInvoiceRequests += 1
+        return HttpResponse.json([])
+      }),
+      http.get(`${backendUrl}/api/posted-sales-invoices`, () => {
+        postedInvoiceRequests += 1
+        return HttpResponse.json([])
+      }),
+    )
+
+    render(<App />)
+    const navigation = await screen.findByRole('navigation', { name: 'Dashboard navigation' })
+    const overviewCustomers = await screen.findByRole('button', { name: 'Open Customers section' })
+    await waitFor(() => expect(overviewCustomers).toHaveTextContent('3'))
+
+    expect(customerRequests).toBe(0)
+    expect(salesInvoiceRequests).toBe(0)
+    expect(postedInvoiceRequests).toBe(0)
+
+    await user.click(within(navigation).getByRole('button', { name: 'Customers' }))
+    const customerKpiButton = screen.getAllByRole('button', { name: /^Customers/ })
+      .find((button) => button.hasAttribute('aria-expanded'))
+    await user.click(customerKpiButton)
+    await waitFor(() => expect(customerRequests).toBe(1))
+    expect(salesInvoiceRequests).toBe(0)
+    expect(postedInvoiceRequests).toBe(0)
+
+    await user.click(screen.getByRole('button', { name: /Average balance due/ }))
+    expect(customerRequests).toBe(1)
   })
 
   it('retries a failed resource and renders the recovered data', async () => {

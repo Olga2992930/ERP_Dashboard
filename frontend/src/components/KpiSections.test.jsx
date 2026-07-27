@@ -224,6 +224,7 @@ describe('CustomerKpiSection', () => {
 
     await user.click(screen.getByRole('button', { name: /Customers with balance due/ }))
     expect(screen.getByText('Loading details...')).toBeInTheDocument()
+    expect(onRetryRecords).toHaveBeenCalledOnce()
 
     rerender(
       <CustomerKpiSection
@@ -238,7 +239,7 @@ describe('CustomerKpiSection', () => {
     const alert = screen.getByRole('alert')
     expect(alert).toHaveTextContent('Customer records could not be loaded')
     await user.click(within(alert).getByRole('button', { name: 'Retry' }))
-    expect(onRetryRecords).toHaveBeenCalledOnce()
+    expect(onRetryRecords).toHaveBeenCalledTimes(2)
   })
 })
 
