@@ -44,7 +44,8 @@ describe('CustomerDebtTable', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 
-  it('renders customer balances and fallbacks in an accessible table region', () => {
+  it('renders customer balances and filters them by search', async () => {
+    const user = userEvent.setup()
     const customers = [
       {
         id: 'customer-1',
@@ -94,5 +95,10 @@ describe('CustomerDebtTable', () => {
       amountFormatter.format(75),
       '-',
     ])
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search' }), 'northwind')
+    expect(screen.getByText('1 / 2 customers')).toBeInTheDocument()
+    expect(screen.getByText('Northwind AB')).toBeInTheDocument()
+    expect(screen.queryByText('Contoso AB')).not.toBeInTheDocument()
   })
 })

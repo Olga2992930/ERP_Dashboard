@@ -268,6 +268,16 @@ describe('SalesInvoiceKpiSection', () => {
     expect(within(region).getByText('INV-001')).toBeInTheDocument()
     expect(within(region).getByText('INV-002')).toBeInTheDocument()
     expect(within(region).getByText('INV-003')).toBeInTheDocument()
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search' }), 'INV-002')
+    expect(screen.getByText('1 / 3 records')).toBeInTheDocument()
+    expect(within(region).getByText('INV-002')).toBeInTheDocument()
+    expect(within(region).queryByText('INV-001')).not.toBeInTheDocument()
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Search' }))
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Filter' }), 'open')
+    expect(within(region).getByText('INV-001')).toBeInTheDocument()
+    expect(within(region).queryByText('INV-002')).not.toBeInTheDocument()
   })
 })
 

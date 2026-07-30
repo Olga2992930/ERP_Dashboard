@@ -17,6 +17,21 @@ function KpiCard({ label, value, tone = 'default', onClick, expanded }) {
 function DataBreakdown({ title, description, records, error, onRetry, type }) {
   const { t } = useLanguage()
   const breakdownRef = useRef(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [recordFilter, setRecordFilter] = useState('all')
+
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const supportsInvoiceStatus = type === 'invoice' && records?.some((record) => record.remainingAmount != null)
+  const filteredRecords = records?.filter((record) => {
+    const matchesSearch = !normalizedSearch || [record.number, record.displayName, record.customerName, record.email]
+      .some((value) => value?.toLowerCase().includes(normalizedSearch))
+    const matchesFilter = recordFilter === 'all'
+      || (recordFilter === 'with-balance' && record.balanceDue > 0)
+      || (recordFilter === 'without-balance' && record.balanceDue <= 0)
+      || (recordFilter === 'open' && record.remainingAmount > 0)
+      || (recordFilter === 'closed' && record.remainingAmount <= 0)
+    return matchesSearch && matchesFilter
+  }) ?? records
 
   useEffect(() => {
     if (typeof breakdownRef.current?.scrollIntoView === 'function') {
@@ -24,25 +39,41 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
     }
   }, [])
 
+  useEffect(() => {
+    setSearchTerm('')
+    setRecordFilter('all')
+  }, [title])
+
   return (
     <div className="kpi-breakdown" ref={breakdownRef}>
       <div className="kpi-breakdown-heading">
         <div><h3>{title}</h3><p>{description}</p></div>
-        {records && <span className="count-badge">{records.length} {t('records')}</span>}
+        {records && <span className="count-badge">{filteredRecords.length} / {records.length} {t('records')}</span>}
       </div>
       {error ? <LoadError message={error} onRetry={onRetry} /> : records === null ? (
         <p className="loading-copy">{t('Loading details...')}</p>
       ) : records.length === 0 ? <div className="empty-state"><strong>{t('No matching records')}</strong></div> : (
-        <div className="table-wrapper" role="region" aria-label={title} tabIndex="0">
+        <>
+          <div className="table-tools">
+            <label className="table-search"><span>{t('Search')}</span><input type="search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={t('Search by number, customer or email')} /></label>
+            {(type === 'customer' || supportsInvoiceStatus) && (
+              <label className="table-filter"><span>{t('Filter')}</span><select value={recordFilter} onChange={(event) => setRecordFilter(event.target.value)}>
+                <option value="all">{t('All records')}</option>
+                {type === 'customer' ? <><option value="with-balance">{t('With balance due')}</option><option value="without-balance">{t('Without balance due')}</option></> : <><option value="open">{t('Open')}</option><option value="closed">{t('Closed')}</option></>}
+              </select></label>
+            )}
+          </div>
+          {filteredRecords.length === 0 ? <div className="empty-state"><strong>{t('No matching records')}</strong><span>{t('Try changing your search or filter.')}</span></div> : <div className="table-wrapper" role="region" aria-label={title} tabIndex="0">
           <table className="customer-table kpi-detail-table">
             <thead><tr>{type === 'customer' ? <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Email')}</th><th className="amount-cell">{t('Balance due')}</th><th className="amount-cell">{t('Credit limit')}</th></> : <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Due date')}</th><th className="amount-cell">{t('Remaining')}</th><th className="amount-cell">{t('Total')}</th></>}</tr></thead>
-            <tbody>{records.map((record) => type === 'customer' ? (
+            <tbody>{filteredRecords.map((record) => type === 'customer' ? (
               <tr key={record.id}><td>{record.number}</td><td>{record.displayName}</td><td>{record.email || '-'}</td><td className="amount-cell">{amountFormatter.format(record.balanceDue)}</td><td className="amount-cell">{amountFormatter.format(record.creditLimit)}</td></tr>
             ) : (
               <tr key={record.id}><td>{record.number}</td><td>{record.customerName}</td><td>{record.invoiceDate || '-'}</td><td>{record.dueDate || '-'}</td><td className="amount-cell">{record.remainingAmount == null ? '—' : amountFormatter.format(record.remainingAmount)}</td><td className="amount-cell">{amountFormatter.format(record.totalAmountIncludingTax)}</td></tr>
             ))}</tbody>
           </table>
-        </div>
+        </div>}
+        </>
       )}
     </div>
   )

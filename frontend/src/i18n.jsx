@@ -48,6 +48,10 @@ const swedish = {
   'Key business indicators': 'Viktiga affärsindikatorer', 'Dashboard navigation': 'Dashboardnavigering',
   'Current workspace': 'Aktuell arbetsyta', details: 'detaljer',
   'Open {label} section': 'Öppna avsnittet {label}',
+  Search: 'Sök', Filter: 'Filter', 'Search by number, customer or email': 'Sök på nummer, kund eller e-post',
+  'All records': 'Alla poster', 'With balance due': 'Med utestående saldo', 'Without balance due': 'Utan utestående saldo',
+  Open: 'Öppna', Closed: 'Stängda', 'All currencies': 'Alla valutor',
+  'Try changing your search or filter.': 'Försök ändra sökningen eller filtret.',
 }
 
 const interpolate = (text, variables = {}) =>
