@@ -18,10 +18,12 @@ class PostedSalesInvoiceServiceTest {
                 mock(PostedSalesInvoiceRepository.class);
 
         PostedSalesInvoiceDto invoice1 = new PostedSalesInvoiceDto();
+        invoice1.currencyCode = "SEK";
         invoice1.totalAmountExcludingTax = 800.0;
         invoice1.totalAmountIncludingTax = 1000.0;
 
         PostedSalesInvoiceDto invoice2 = new PostedSalesInvoiceDto();
+        invoice2.currencyCode = "EUR";
         invoice2.totalAmountExcludingTax = 1600.0;
         invoice2.totalAmountIncludingTax = 2000.0;
 
@@ -37,9 +39,15 @@ class PostedSalesInvoiceServiceTest {
 
         // Then
         assertEquals(2, kpi.postedInvoicesCount);
-        assertEquals(2400.0, kpi.totalAmountExcludingTax);
-        assertEquals(600.0, kpi.totalTaxAmount);
-        assertEquals(3000.0, kpi.totalAmountIncludingTax);
+        assertEquals(2, kpi.currencies.size());
+        assertEquals("EUR", kpi.currencies.get(0).currencyCode);
+        assertEquals(1600.0, kpi.currencies.get(0).totalAmountExcludingTax);
+        assertEquals(400.0, kpi.currencies.get(0).totalTaxAmount);
+        assertEquals(2000.0, kpi.currencies.get(0).totalAmountIncludingTax);
+        assertEquals("SEK", kpi.currencies.get(1).currencyCode);
+        assertEquals(800.0, kpi.currencies.get(1).totalAmountExcludingTax);
+        assertEquals(200.0, kpi.currencies.get(1).totalTaxAmount);
+        assertEquals(1000.0, kpi.currencies.get(1).totalAmountIncludingTax);
     }
 
     // No posted sales invoices
@@ -61,8 +69,6 @@ class PostedSalesInvoiceServiceTest {
 
         // Then
         assertEquals(0, kpi.postedInvoicesCount);
-        assertEquals(0.0, kpi.totalAmountExcludingTax);
-        assertEquals(0.0, kpi.totalTaxAmount);
-        assertEquals(0.0, kpi.totalAmountIncludingTax);
+        assertEquals(List.of(), kpi.currencies);
     }
 }

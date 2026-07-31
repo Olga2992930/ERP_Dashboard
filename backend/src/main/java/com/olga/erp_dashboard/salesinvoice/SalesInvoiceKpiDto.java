@@ -1,12 +1,9 @@
 package com.olga.erp_dashboard.salesinvoice;
 
+import java.util.List;
+
 public class SalesInvoiceKpiDto {
     public int invoicesCount;
     public int openInvoicesCount;
-
-    public double totalRemainingAmount;
-
-    public double totalAmountExcludingTax;
-    public double totalTaxAmount;
-    public double totalAmountIncludingTax;
+    public List<SalesInvoiceCurrencyKpiDto> currencies = List.of();
 }

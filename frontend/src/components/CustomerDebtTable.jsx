@@ -55,7 +55,7 @@ function CustomerDebtTable({ customers, error, onRetry }) {
                 <th>{t('Number')}</th>
                 <th>{t('Customer')}</th>
                 <th>{t('Email')}</th>
-                <th className="amount-cell">{t('Balance due')}</th>
+                <th className="amount-cell">{t('Balance due')}, SEK</th>
                 <th>{t('Currency')}</th>
               </tr>
             </thead>

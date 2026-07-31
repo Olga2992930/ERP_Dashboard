@@ -57,10 +57,13 @@ class SalesInvoiceControllerTest {
         SalesInvoiceKpiDto kpi = new SalesInvoiceKpiDto();
         kpi.invoicesCount = 2;
         kpi.openInvoicesCount = 1;
-        kpi.totalRemainingAmount = 1000.0;
-        kpi.totalAmountExcludingTax = 2400.0;
-        kpi.totalTaxAmount = 600.0;
-        kpi.totalAmountIncludingTax = 3000.0;
+        SalesInvoiceCurrencyKpiDto currency = new SalesInvoiceCurrencyKpiDto();
+        currency.currencyCode = "SEK";
+        currency.totalRemainingAmount = 1000.0;
+        currency.totalAmountExcludingTax = 2400.0;
+        currency.totalTaxAmount = 600.0;
+        currency.totalAmountIncludingTax = 3000.0;
+        kpi.currencies = List.of(currency);
 
         when(salesInvoiceService.getSalesInvoiceKpi())
                 .thenReturn(kpi);
@@ -75,9 +78,10 @@ class SalesInvoiceControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.invoicesCount").value(2))
                 .andExpect(jsonPath("$.openInvoicesCount").value(1))
-                .andExpect(jsonPath("$.totalRemainingAmount").value(1000.0))
-                .andExpect(jsonPath("$.totalAmountExcludingTax").value(2400.0))
-                .andExpect(jsonPath("$.totalTaxAmount").value(600.0))
-                .andExpect(jsonPath("$.totalAmountIncludingTax").value(3000.0));
+                .andExpect(jsonPath("$.currencies[0].currencyCode").value("SEK"))
+                .andExpect(jsonPath("$.currencies[0].totalRemainingAmount").value(1000.0))
+                .andExpect(jsonPath("$.currencies[0].totalAmountExcludingTax").value(2400.0))
+                .andExpect(jsonPath("$.currencies[0].totalTaxAmount").value(600.0))
+                .andExpect(jsonPath("$.currencies[0].totalAmountIncludingTax").value(3000.0));
     }
 }

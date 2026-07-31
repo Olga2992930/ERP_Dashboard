@@ -55,10 +55,22 @@ const customers = [
 const salesInvoiceKpi = {
   invoicesCount: 3,
   openInvoicesCount: 1,
-  totalRemainingAmount: 325,
-  totalAmountExcludingTax: 1200,
-  totalTaxAmount: 300,
-  totalAmountIncludingTax: 1500,
+  currencies: [
+    {
+      currencyCode: 'EUR',
+      totalRemainingAmount: 100,
+      totalAmountExcludingTax: 800,
+      totalTaxAmount: 200,
+      totalAmountIncludingTax: 1000,
+    },
+    {
+      currencyCode: 'SEK',
+      totalRemainingAmount: 325,
+      totalAmountExcludingTax: 1200,
+      totalTaxAmount: 300,
+      totalAmountIncludingTax: 1500,
+    },
+  ],
 }
 
 const invoices = [
@@ -155,7 +167,7 @@ describe('SummaryKpiRow', () => {
     expect(screen.getByRole('button', { name: 'Open Customers section' })).toHaveTextContent('4')
     expect(screen.getByRole('button', { name: 'Open Posted invoices section' })).toHaveTextContent('—')
 
-    await user.click(screen.getByRole('button', { name: 'Open Balance due section' }))
+    await user.click(screen.getByRole('button', { name: 'Open Balance due, SEK section' }))
 
     expect(onSelectSection).toHaveBeenCalledOnce()
     expect(onSelectSection).toHaveBeenCalledWith('receivables')
@@ -244,6 +256,14 @@ describe('CustomerKpiSection', () => {
 })
 
 describe('SalesInvoiceKpiSection', () => {
+  it('shows monetary totals separately for each invoice currency', () => {
+    render(<SalesInvoiceKpiSection {...salesInvoiceProps()} />)
+
+    const remainingAmount = screen.getByRole('button', { name: /Remaining amount/ })
+    expect(remainingAmount).toHaveTextContent('100,00EUR')
+    expect(remainingAmount).toHaveTextContent('325,00SEK')
+  })
+
   it('only shows invoices with a remaining amount for the open-invoices KPI', async () => {
     const user = userEvent.setup()
     render(<SalesInvoiceKpiSection {...salesInvoiceProps()} />)
@@ -288,9 +308,12 @@ describe('PostedSalesInvoiceKpiSection', () => {
       <PostedSalesInvoiceKpiSection
         postedSalesInvoiceKpi={{
           postedInvoicesCount: 3,
-          totalAmountExcludingTax: 1200,
-          totalTaxAmount: 300,
-          totalAmountIncludingTax: 1500,
+          currencies: [{
+            currencyCode: 'SEK',
+            totalAmountExcludingTax: 1200,
+            totalTaxAmount: 300,
+            totalAmountIncludingTax: 1500,
+          }],
         }}
         error={null}
         onRetry={vi.fn()}

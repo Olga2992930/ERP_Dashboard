@@ -78,7 +78,7 @@ describe('CustomerDebtTable', () => {
       'Number',
       'Customer',
       'Email',
-      'Balance due',
+      'Balance due, SEK',
       'Currency',
     ])
     expect(within(rows[1]).getAllByRole('cell').map((cell) => cell.textContent)).toEqual([

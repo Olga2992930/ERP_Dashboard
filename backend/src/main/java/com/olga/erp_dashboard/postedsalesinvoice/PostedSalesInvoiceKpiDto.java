@@ -1,10 +1,8 @@
 package com.olga.erp_dashboard.postedsalesinvoice;
 
+import java.util.List;
+
 public class PostedSalesInvoiceKpiDto {
-
     public int postedInvoicesCount;
-
-    public double totalAmountExcludingTax;
-    public double totalTaxAmount;
-    public double totalAmountIncludingTax;
+    public List<PostedSalesInvoiceCurrencyKpiDto> currencies = List.of();
 }

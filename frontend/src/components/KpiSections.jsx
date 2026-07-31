@@ -3,6 +3,27 @@ import { amountFormatter } from '../formatters.js'
 import LoadError from './LoadError.jsx'
 import { useLanguage } from '../i18n.jsx'
 
+const localCurrencyCode = 'SEK'
+
+function currencyCodeFor(record) {
+  return record.currencyCode?.trim().toUpperCase() || localCurrencyCode
+}
+
+function CurrencyValues({ currencies, field }) {
+  if (!currencies?.length) return '—'
+
+  return (
+    <span className="currency-values">
+      {currencies.map((currency) => (
+        <span key={currency.currencyCode}>
+          {amountFormatter.format(currency[field])}
+          <small>{currency.currencyCode}</small>
+        </span>
+      ))}
+    </span>
+  )
+}
+
 function KpiCard({ label, value, tone = 'default', onClick, expanded }) {
   const { t } = useLanguage()
   return (
@@ -65,11 +86,11 @@ function DataBreakdown({ title, description, records, error, onRetry, type }) {
           </div>
           {filteredRecords.length === 0 ? <div className="empty-state"><strong>{t('No matching records')}</strong><span>{t('Try changing your search or filter.')}</span></div> : <div className="table-wrapper" role="region" aria-label={title} tabIndex="0">
           <table className="customer-table kpi-detail-table">
-            <thead><tr>{type === 'customer' ? <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Email')}</th><th className="amount-cell">{t('Balance due')}</th><th className="amount-cell">{t('Credit limit')}</th></> : <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Due date')}</th><th className="amount-cell">{t('Remaining')}</th><th className="amount-cell">{t('Total')}</th></>}</tr></thead>
+            <thead><tr>{type === 'customer' ? <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Email')}</th><th className="amount-cell">{t('Balance due')}, SEK</th><th className="amount-cell">{t('Credit limit')}, SEK</th></> : <><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Due date')}</th><th className="amount-cell">{t('Remaining')}</th><th className="amount-cell">{t('Total')}</th><th>{t('Currency')}</th></>}</tr></thead>
             <tbody>{filteredRecords.map((record) => type === 'customer' ? (
               <tr key={record.id}><td>{record.number}</td><td>{record.displayName}</td><td>{record.email || '-'}</td><td className="amount-cell">{amountFormatter.format(record.balanceDue)}</td><td className="amount-cell">{amountFormatter.format(record.creditLimit)}</td></tr>
             ) : (
-              <tr key={record.id}><td>{record.number}</td><td>{record.customerName}</td><td>{record.invoiceDate || '-'}</td><td>{record.dueDate || '-'}</td><td className="amount-cell">{record.remainingAmount == null ? '—' : amountFormatter.format(record.remainingAmount)}</td><td className="amount-cell">{amountFormatter.format(record.totalAmountIncludingTax)}</td></tr>
+              <tr key={record.id}><td>{record.number}</td><td>{record.customerName}</td><td>{record.invoiceDate || '-'}</td><td>{record.dueDate || '-'}</td><td className="amount-cell">{record.remainingAmount == null ? '—' : amountFormatter.format(record.remainingAmount)}</td><td className="amount-cell">{amountFormatter.format(record.totalAmountIncludingTax)}</td><td>{currencyCodeFor(record)}</td></tr>
             ))}</tbody>
           </table>
         </div>}
@@ -109,7 +130,7 @@ export function SummaryKpiRow({ customerKpi, salesInvoiceKpi, postedSalesInvoice
         onClick={() => onSelectSection('customers')}
       />
       <SummaryCard
-        label={t('Balance due')}
+        label={`${t('Balance due')}, SEK`}
         value={customerKpi ? amountFormatter.format(customerKpi.totalBalanceDue) : null}
         symbol="$"
         tone="cyan"
@@ -171,18 +192,18 @@ export function CustomerKpiSection({ customerKpi, error, onRetry, records, recor
             onClick={() => show('with-balance')} expanded={detail === 'with-balance'}
           />
           <KpiCard
-            label={t('Total balance due')}
+            label={`${t('Total balance due')}, SEK`}
             value={amountFormatter.format(customerKpi.totalBalanceDue)}
             tone="attention"
             onClick={() => show('total')} expanded={detail === 'total'}
           />
           <KpiCard
-            label={t('Average balance due')}
+            label={`${t('Average balance due')}, SEK`}
             value={amountFormatter.format(customerKpi.averageBalanceDue)}
             onClick={() => show('average')} expanded={detail === 'average'}
           />
           <KpiCard
-            label={t('Largest balance due')}
+            label={`${t('Largest balance due')}, SEK`}
             value={amountFormatter.format(customerKpi.largestBalanceDue)}
             onClick={() => show('largest')} expanded={detail === 'largest'}
           />
@@ -230,25 +251,25 @@ export function SalesInvoiceKpiSection({ salesInvoiceKpi, error, onRetry, record
           />
           <KpiCard
             label={t('Remaining amount')}
-            value={amountFormatter.format(salesInvoiceKpi.totalRemainingAmount)}
+            value={<CurrencyValues currencies={salesInvoiceKpi.currencies} field="totalRemainingAmount" />}
             tone="attention"
             onClick={() => show('remaining')} expanded={detail === 'remaining'}
           />
           <KpiCard
             label={t('Total excluding tax')}
-            value={amountFormatter.format(salesInvoiceKpi.totalAmountExcludingTax)}
+            value={<CurrencyValues currencies={salesInvoiceKpi.currencies} field="totalAmountExcludingTax" />}
             tone="blue"
             onClick={() => show('excluding-tax')} expanded={detail === 'excluding-tax'}
           />
           <KpiCard
             label={t('Total tax')}
-            value={amountFormatter.format(salesInvoiceKpi.totalTaxAmount)}
+            value={<CurrencyValues currencies={salesInvoiceKpi.currencies} field="totalTaxAmount" />}
             tone="positive"
             onClick={() => show('tax')} expanded={detail === 'tax'}
           />
           <KpiCard
             label={t('Total including tax')}
-            value={amountFormatter.format(salesInvoiceKpi.totalAmountIncludingTax)}
+            value={<CurrencyValues currencies={salesInvoiceKpi.currencies} field="totalAmountIncludingTax" />}
             tone="violet"
             onClick={() => show('including-tax')} expanded={detail === 'including-tax'}
           />
@@ -294,19 +315,19 @@ export function PostedSalesInvoiceKpiSection({ postedSalesInvoiceKpi, error, onR
           />
           <KpiCard
             label={t('Total excluding tax')}
-            value={amountFormatter.format(postedSalesInvoiceKpi.totalAmountExcludingTax)}
+            value={<CurrencyValues currencies={postedSalesInvoiceKpi.currencies} field="totalAmountExcludingTax" />}
             tone="blue"
             onClick={() => show('excluding-tax')} expanded={detail === 'excluding-tax'}
           />
           <KpiCard
             label={t('Total tax')}
-            value={amountFormatter.format(postedSalesInvoiceKpi.totalTaxAmount)}
+            value={<CurrencyValues currencies={postedSalesInvoiceKpi.currencies} field="totalTaxAmount" />}
             tone="positive"
             onClick={() => show('tax')} expanded={detail === 'tax'}
           />
           <KpiCard
             label={t('Total including tax')}
-            value={amountFormatter.format(postedSalesInvoiceKpi.totalAmountIncludingTax)}
+            value={<CurrencyValues currencies={postedSalesInvoiceKpi.currencies} field="totalAmountIncludingTax" />}
             tone="violet"
             onClick={() => show('including-tax')} expanded={detail === 'including-tax'}
           />

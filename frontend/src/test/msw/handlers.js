@@ -122,18 +122,24 @@ export const handlers = [
     HttpResponse.json({
       invoicesCount: salesInvoices.length,
       openInvoicesCount: 1,
-      totalRemainingAmount: 6250,
-      totalAmountExcludingTax: 13000,
-      totalTaxAmount: 3250,
-      totalAmountIncludingTax: 16250,
+      currencies: [{
+        currencyCode: 'SEK',
+        totalRemainingAmount: 6250,
+        totalAmountExcludingTax: 13000,
+        totalTaxAmount: 3250,
+        totalAmountIncludingTax: 16250,
+      }],
     }),
   ),
   http.get(`${backendUrl}/api/kpi/posted-sales-invoices`, () =>
     HttpResponse.json({
       postedInvoicesCount: postedSalesInvoices.length,
-      totalAmountExcludingTax: 12000,
-      totalTaxAmount: 3000,
-      totalAmountIncludingTax: 15000,
+      currencies: [{
+        currencyCode: 'SEK',
+        totalAmountExcludingTax: 12000,
+        totalTaxAmount: 3000,
+        totalAmountIncludingTax: 15000,
+      }],
     }),
   ),
   http.get(`${backendUrl}/api/customers/with-balance-due`, () =>

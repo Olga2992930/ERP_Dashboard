@@ -3,6 +3,9 @@ package com.olga.erp_dashboard.salesinvoice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class SalesInvoiceService {
@@ -28,22 +31,27 @@ public class SalesInvoiceService {
                 .filter(invoice -> invoice.remainingAmount > 0)
                 .count();
 
-        kpi.totalRemainingAmount = invoices.stream()
-                .mapToDouble(invoice -> invoice.remainingAmount)
-                .sum();
-
-        kpi.totalAmountExcludingTax = invoices.stream()
-                .mapToDouble(invoice -> invoice.totalAmountExcludingTax)
-                .sum();
-
-        kpi.totalTaxAmount = invoices.stream()
-                .mapToDouble(invoice -> invoice.totalTaxAmount)
-                .sum();
-
-        kpi.totalAmountIncludingTax = invoices.stream()
-                .mapToDouble(invoice -> invoice.totalAmountIncludingTax)
-                .sum();
+        Map<String, SalesInvoiceCurrencyKpiDto> currencies = new TreeMap<>();
+        for (SalesInvoiceDto invoice : invoices) {
+            String currencyCode = normalizeCurrencyCode(invoice.currencyCode);
+            SalesInvoiceCurrencyKpiDto currency = currencies.computeIfAbsent(currencyCode, code -> {
+                SalesInvoiceCurrencyKpiDto totals = new SalesInvoiceCurrencyKpiDto();
+                totals.currencyCode = code;
+                return totals;
+            });
+            currency.totalRemainingAmount += invoice.remainingAmount;
+            currency.totalAmountExcludingTax += invoice.totalAmountExcludingTax;
+            currency.totalTaxAmount += invoice.totalTaxAmount;
+            currency.totalAmountIncludingTax += invoice.totalAmountIncludingTax;
+        }
+        kpi.currencies = List.copyOf(currencies.values());
 
         return kpi;
+    }
+
+    private String normalizeCurrencyCode(String currencyCode) {
+        return currencyCode == null || currencyCode.isBlank()
+                ? "SEK"
+                : currencyCode.trim().toUpperCase(Locale.ROOT);
     }
 }

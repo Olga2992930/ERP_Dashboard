@@ -3,6 +3,9 @@ package com.olga.erp_dashboard.postedsalesinvoice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class PostedSalesInvoiceService {
@@ -25,17 +28,26 @@ public class PostedSalesInvoiceService {
 
         kpi.postedInvoicesCount = invoices.size();
 
-        kpi.totalAmountExcludingTax = invoices.stream()
-                .mapToDouble(invoice -> invoice.totalAmountExcludingTax)
-                .sum();
-
-        kpi.totalAmountIncludingTax = invoices.stream()
-                .mapToDouble(invoice -> invoice.totalAmountIncludingTax)
-                .sum();
-
-        kpi.totalTaxAmount =
-                kpi.totalAmountIncludingTax - kpi.totalAmountExcludingTax;
+        Map<String, PostedSalesInvoiceCurrencyKpiDto> currencies = new TreeMap<>();
+        for (PostedSalesInvoiceDto invoice : invoices) {
+            String currencyCode = normalizeCurrencyCode(invoice.currencyCode);
+            PostedSalesInvoiceCurrencyKpiDto currency = currencies.computeIfAbsent(currencyCode, code -> {
+                PostedSalesInvoiceCurrencyKpiDto totals = new PostedSalesInvoiceCurrencyKpiDto();
+                totals.currencyCode = code;
+                return totals;
+            });
+            currency.totalAmountExcludingTax += invoice.totalAmountExcludingTax;
+            currency.totalAmountIncludingTax += invoice.totalAmountIncludingTax;
+            currency.totalTaxAmount += invoice.totalAmountIncludingTax - invoice.totalAmountExcludingTax;
+        }
+        kpi.currencies = List.copyOf(currencies.values());
 
         return kpi;
+    }
+
+    private String normalizeCurrencyCode(String currencyCode) {
+        return currencyCode == null || currencyCode.isBlank()
+                ? "SEK"
+                : currencyCode.trim().toUpperCase(Locale.ROOT);
     }
 }

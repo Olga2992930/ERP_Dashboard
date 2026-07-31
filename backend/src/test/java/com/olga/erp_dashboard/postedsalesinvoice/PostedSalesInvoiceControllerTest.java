@@ -54,9 +54,12 @@ class PostedSalesInvoiceControllerTest {
 
         PostedSalesInvoiceKpiDto kpi = new PostedSalesInvoiceKpiDto();
         kpi.postedInvoicesCount = 2;
-        kpi.totalAmountExcludingTax = 2400.0;
-        kpi.totalTaxAmount = 600.0;
-        kpi.totalAmountIncludingTax = 3000.0;
+        PostedSalesInvoiceCurrencyKpiDto currency = new PostedSalesInvoiceCurrencyKpiDto();
+        currency.currencyCode = "SEK";
+        currency.totalAmountExcludingTax = 2400.0;
+        currency.totalTaxAmount = 600.0;
+        currency.totalAmountIncludingTax = 3000.0;
+        kpi.currencies = List.of(currency);
 
         when(postedSalesInvoiceService.getPostedSalesInvoiceKpi())
                 .thenReturn(kpi);
@@ -70,8 +73,9 @@ class PostedSalesInvoiceControllerTest {
         mockMvc.perform(get("/api/kpi/posted-sales-invoices"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.postedInvoicesCount").value(2))
-                .andExpect(jsonPath("$.totalAmountExcludingTax").value(2400.0))
-                .andExpect(jsonPath("$.totalTaxAmount").value(600.0))
-                .andExpect(jsonPath("$.totalAmountIncludingTax").value(3000.0));
+                .andExpect(jsonPath("$.currencies[0].currencyCode").value("SEK"))
+                .andExpect(jsonPath("$.currencies[0].totalAmountExcludingTax").value(2400.0))
+                .andExpect(jsonPath("$.currencies[0].totalTaxAmount").value(600.0))
+                .andExpect(jsonPath("$.currencies[0].totalAmountIncludingTax").value(3000.0));
     }
 }

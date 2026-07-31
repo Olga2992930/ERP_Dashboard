@@ -18,12 +18,14 @@ class SalesInvoiceServiceTest {
                 mock(SalesInvoiceRepository.class);
 
         SalesInvoiceDto invoice1 = new SalesInvoiceDto();
+        invoice1.currencyCode = "SEK";
         invoice1.remainingAmount = 1000.0;
         invoice1.totalAmountExcludingTax = 800.0;
         invoice1.totalTaxAmount = 200.0;
         invoice1.totalAmountIncludingTax = 1000.0;
 
         SalesInvoiceDto invoice2 = new SalesInvoiceDto();
+        invoice2.currencyCode = "EUR";
         invoice2.remainingAmount = 0.0;
         invoice2.totalAmountExcludingTax = 1600.0;
         invoice2.totalTaxAmount = 400.0;
@@ -42,10 +44,17 @@ class SalesInvoiceServiceTest {
         assertEquals(2, kpi.invoicesCount);
         assertEquals(1, kpi.openInvoicesCount);
 
-        assertEquals(1000.0, kpi.totalRemainingAmount);
-        assertEquals(2400.0, kpi.totalAmountExcludingTax);
-        assertEquals(600.0, kpi.totalTaxAmount);
-        assertEquals(3000.0, kpi.totalAmountIncludingTax);
+        assertEquals(2, kpi.currencies.size());
+        assertEquals("EUR", kpi.currencies.get(0).currencyCode);
+        assertEquals(0.0, kpi.currencies.get(0).totalRemainingAmount);
+        assertEquals(1600.0, kpi.currencies.get(0).totalAmountExcludingTax);
+        assertEquals(400.0, kpi.currencies.get(0).totalTaxAmount);
+        assertEquals(2000.0, kpi.currencies.get(0).totalAmountIncludingTax);
+        assertEquals("SEK", kpi.currencies.get(1).currencyCode);
+        assertEquals(1000.0, kpi.currencies.get(1).totalRemainingAmount);
+        assertEquals(800.0, kpi.currencies.get(1).totalAmountExcludingTax);
+        assertEquals(200.0, kpi.currencies.get(1).totalTaxAmount);
+        assertEquals(1000.0, kpi.currencies.get(1).totalAmountIncludingTax);
     }
 
     // All invoices are paid
@@ -79,10 +88,12 @@ class SalesInvoiceServiceTest {
         // Then
         assertEquals(2, kpi.invoicesCount);
         assertEquals(0, kpi.openInvoicesCount);
-        assertEquals(0.0, kpi.totalRemainingAmount);
-        assertEquals(2400.0, kpi.totalAmountExcludingTax);
-        assertEquals(600.0, kpi.totalTaxAmount);
-        assertEquals(3000.0, kpi.totalAmountIncludingTax);
+        assertEquals(1, kpi.currencies.size());
+        assertEquals("SEK", kpi.currencies.get(0).currencyCode);
+        assertEquals(0.0, kpi.currencies.get(0).totalRemainingAmount);
+        assertEquals(2400.0, kpi.currencies.get(0).totalAmountExcludingTax);
+        assertEquals(600.0, kpi.currencies.get(0).totalTaxAmount);
+        assertEquals(3000.0, kpi.currencies.get(0).totalAmountIncludingTax);
     }
 
     // No invoices
@@ -104,9 +115,6 @@ class SalesInvoiceServiceTest {
         // Then
         assertEquals(0, kpi.invoicesCount);
         assertEquals(0, kpi.openInvoicesCount);
-        assertEquals(0.0, kpi.totalRemainingAmount);
-        assertEquals(0.0, kpi.totalAmountExcludingTax);
-        assertEquals(0.0, kpi.totalTaxAmount);
-        assertEquals(0.0, kpi.totalAmountIncludingTax);
+        assertEquals(List.of(), kpi.currencies);
     }
 }
